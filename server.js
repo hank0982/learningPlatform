@@ -2,10 +2,16 @@ var express = require('express');
 var app = express();
 var socket = require('socket.io');
 var rooms = [];
+var path = require('path');
 app.use(express.static('public'));
-server = app.listen(8080, function() {
-    console.log('server is running on port 8080')
-});
+app.get('*/bundle.js', function(req, res) {
+    res.sendFile(path.join(__dirname, '/public/bundle.js'))
+})
+server = app.get('*', function(req, res) {
+    res.sendFile(path.join(__dirname, '/public/index.html'))
+}).listen(8080, () => console.log('Server on port 3000'))
+
+
 io = socket(server);
 
 io.on('connection', (socket) => {
@@ -36,4 +42,4 @@ io.on('connection', (socket) => {
             socket.emit('ERROR', { type: 'error-1', msg: 'ERROR#1: There is no such room!' });
         }
     });
-});
+})

@@ -138,7 +138,7 @@ class Home extends React.Component{
                             </form>
 
                             <Button raised color="accent" className={classes.fullWidthButton} onClick={this.buttonOnClick}>
-                                Lecturers
+                                I want to be a lecturer
                             </Button>
                             
                         </div>
@@ -171,7 +171,7 @@ class Home extends React.Component{
                                 </Button>
                             </form>
                             <Button raised color="accent" className={classes.fullWidthButton} onClick={this.buttonOnClick}>
-                                Students
+                                I want to be a student
                             </Button>
                         </div>
         };

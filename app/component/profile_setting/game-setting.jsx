@@ -15,7 +15,6 @@ import Switch from 'material-ui/Switch';
 import { FormControlLabel } from 'material-ui/Form';
 import Snackbar from 'material-ui/Snackbar';
 import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Table';
-
 const styles = theme => ({
     root: theme.mixins.gutters({
         paddingTop: 8,
@@ -42,9 +41,8 @@ const styles = theme => ({
 class GameSetting extends React.Component {
     constructor(props) {
         super(props);
-        
         var initPlayerSettingState = {
-                firmNum: 0,
+                firmNum: 1,
                 roundNum: 0,
                 demandConstant: 0,
                 demandSlope: 0,
@@ -58,12 +56,14 @@ class GameSetting extends React.Component {
         this.state = {
             ...initPlayerSettingState,
             roomNum: this.props.match.params.id,
-            gameSetting: 'block',
-            
+            playerSetting: false,
+            generalSetting: false,
+            companyDescription: false  
         }
         let that = this;
         this.classes = props.classes;
         this.socket = this.props.socket;
+        this.database = this.props.database;
         this.socket.on('SUCCESS', function(data) {
             that.setState({
                 open: true,
@@ -125,7 +125,7 @@ class GameSetting extends React.Component {
         let that = this;
         let printerror = false;
         var companys = {};
-        var dataTypeInCompany = ['constant','coefficientOne','coefficientTwo','coefficientThree','maximum','minimum','assetCash','assetPPE','assetLand','liabilitiesBorrwoing','shareCapital','beg','netIncome']
+        var dataTypeInCompany = ['companyDescription','marketInterestRate','constant','coefficientOne','coefficientTwo','coefficientThree','maximum','minimum','assetCash','assetPPE','assetLand','liabilitiesBorrwoing','shareCapital','beg','netIncome']
         for(let i = 1; i <= that.state.firmNum; i++){
             if(!that.state['company_'+i]){
                 printerror = true;
@@ -136,7 +136,6 @@ class GameSetting extends React.Component {
                 dataTypeInCompany.map(function(type){
                     if(!company[type]){
                         printerror = true;
-                        console.log(type)
                         return;
                     }
                 })
@@ -153,6 +152,10 @@ class GameSetting extends React.Component {
             increaseInCapacity: this.state.increaseInCapacity,
             advertisementImplement: this.state.advertisementImplement,
             taxComposition: this.state.taxComposition,
+            gameRule: this.state.gameRule,
+            goalOfFirms: this.state.goalOfFirms,
+            marketDescription: this.state.marketDescription,
+            descriptionOfFirms: this.state.descriptionOfFirms,
             productionDifferentiation: this.state.productionDifferentiation
         }
         var transferData = {
@@ -161,7 +164,10 @@ class GameSetting extends React.Component {
             timeStamp: new Date()
         };
         if(transferData.roomInfo.constant && transferData.roomInfo.firmNum && transferData.roomInfo.slope && transferData.roomInfo.roundNum && !printerror){
-            this.socket.emit('GAME_SETTING', transferData);
+            this.socket.emit('GAME_SETTING',  transferData);
+            this.database.database().ref(transferData.timeStamp.toString()).set(
+                transferData
+            );
             console.log(transferData);
         }else{
             that.setState({
@@ -226,7 +232,7 @@ class GameSetting extends React.Component {
         if(less){
             return(
                 <TableRow key={key}>
-                    <TableCell padding="dense">{title}</TableCell>
+                    <TableCell padding="dense" width = '25%'>{title}</TableCell>
                     {Array.apply(null, {length: that.state.firmNum? that.state.firmNum:1}).map(Number.call, Number).map(function(v){
                         if(v+1 <= 5){
                         let k = v+1;
@@ -271,22 +277,7 @@ class GameSetting extends React.Component {
                     })}
                 </TableRow>)
         }
-    }
-    renderTableTitle(key, title,type){
-        let that = this;
-        return  (<TableRow key={key}>
-                    <TableCell padding="dense">
-                    <Typography color = "primary" type={type} style={type === 'title'?{fontSize:'12pt'}:null}>{title}</Typography>
-                    </TableCell>
-                    {Array.apply(null, {length: that.state.firmNum? that.state.firmNum:1}).map(Number.call, Number).map(function(v){
-                    if(v+1 <= 5){
-                    return(
-                        <TableCell key = {v+1} value={v+1}></TableCell>
-                    )
-                }
-                })}                                
-                </TableRow>)
-    }
+    };
     renderAddUP(key, title, type, less){
         let that = this;
         var tableCells = []
@@ -343,10 +334,98 @@ class GameSetting extends React.Component {
             {tableCells}
         </TableRow>
         )
+    };
+    renderTable(less){
+        let classes = this.classes;
+        return (
+            <div>
+            <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > Player Profile </Typography>
+            <Table className={classes.table} >      
+                <TableBody>
+                {this.renderTableRowFive(1, 'Company Name', 'companyName', 'Company Name',less,null)}
+                </TableBody>
+            </Table>
+            <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > Production Cost </Typography>
+            <Table className={classes.table} >
+                <TableBody>
+                    {this.renderTableRowFive(3, 'Constant', 'constant', 'Constant',less)}
+                    {this.renderTableRowFive(4, 'Coefficient 1', 'coefficientOne', 'Coefficient 1',less)}
+                    {this.renderTableRowFive(5, 'Coefficient 2', 'coefficientTwo', 'Coefficient 2',less)}
+                    {this.renderTableRowFive(6, 'Coefficient 3', 'coefficientThree', 'Coefficient 3',less)}
+                </TableBody>
+            </Table>
+            <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > Production Capacity </Typography>
+            <Table className={classes.table} >
+                <TableBody>
+                    {this.renderTableRowFive(8, 'Maximum', 'maximum', 'Maximum',less)}
+                    {this.renderTableRowFive(9, 'Minimum', 'minimum', 'Minimum',less)}
+                    {this.renderTableRowFive(26, 'Market Interest Rate', 'marketInterestRate', 'Rate',less)} 
+                </TableBody>
+            </Table>
+            <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > Balance Sheet </Typography>
+            <Typography style={{marginTop:10}} color = "secondary" type="body1" component="h2"  > Production Capacity </Typography>
+            <Table className={classes.table} >
+                <TableBody>
+                    {this.renderTableRowFive(12, 'Cash', 'assetCash', 'Cash',less)}
+                    {this.renderTableRowFive(13, 'Plant, Property and Equipment', 'assetPPE', 'Plant..',less)}        
+                    {this.renderTableRowFive(14, 'Land', 'assetLand', 'Land',less)}
+                    {this.renderAddUP(15,'Total Asset',['assetCash','assetLand','assetPPE'], less)}
+                </TableBody>
+            </Table>   
+            <Typography style={{marginTop:10}} color = "secondary" type="body1" component="h2"  > Liabilities </Typography>
+            <Table className={classes.table} >
+                <TableBody>
+                    {this.renderTableRowFive(17, 'Borrwoing', 'liabilitiesBorrwoing', 'Borrwoing',less)}
+                    {this.renderAddUP(18,'Total Liabilities',['liabilitiesBorrwoing'], less)}
+                </TableBody>
+            </Table>                                    
+            <Typography style={{marginTop:10}} color = "secondary" type="body1" component="h2"  > Equity </Typography>
+            <Table className={classes.table} >
+                <TableBody>
+                    {this.renderTableRowFive(20, 'Share Capital', 'shareCapital', 'Share Capital',less)} 
+                </TableBody>
+            </Table>                       
+            <Typography style={{marginTop:10}} color = "secondary" type="body1" component="h2"  > Retained Earnings </Typography>
+            <Table className={classes.table} >
+                <TableBody>
+                    {this.renderTableRowFive(22, 'Beg.', 'beg', 'Beg.',less)}
+                    {this.renderTableRowFive(23, 'Net income', 'netIncome', 'Net Income',less)}        
+                    {this.renderAddUP(24,'Total Retained Earnings',['beg','netIncome'], less)}
+                    {this.renderAddUP(25,'Total Equity',['beg','netIncome','shareCapital'], less)}
+                </TableBody>
+            </Table>                     
+                                
+                                
+            </div>
+        )
+    }
+    renderDescription(){
+        let that = this;
+        let classes = this.classes;
+        var description = [];
+        for(var i = 1; i <= that.state.firmNum; i ++){
+            description.push(
+                <TextField
+                    id={"company_"+i+' Des'}
+                    label={"Company " + i + ' Description'}
+                    multiline
+                    row="4"
+                    onChange={that.handleCompanyOnChange({name: 'companyDescription', id:i})}
+                    className={classes.textField}
+                    margin="normal"
+                    fullWidth
+                />
+            )
+        }
+        return description;
     }
     render() {
         let classes = this.classes;
         let that = this;
+        var gameSettingPage = !this.state.playerSetting && !this.state.companyDescription && !this.state.generalSetting;
+        var companyPage = this.state.companyDescription;
+        var playerSettingPage = this.state.playerSetting;
+        var generalSettingPage = this.state.generalSetting;
         return (<div> 
                     <ApplcationBar type = 'GameSetting'/>
                     <Grid container 
@@ -360,17 +439,40 @@ class GameSetting extends React.Component {
                     </Grid>      
                     <Grid item xs = {10}>
                     <form onSubmit={this.handleSubmit} className={classes.container} noValidate autoComplete="off">
-                    <FormControlLabel
-                                control={
-                                    <Switch
-                                    checked={this.state.playerSetting}
-                                    onChange={this.handleSwitchOnChange('playerSetting')}
-                                    aria-label="playerSetting"
-                                    />
-                                }
-                                label="Player Profile"
-                            />
-                    <Paper style = {{display:this.state.playerSetting?'none':'block'}} className = { classes.root } elevation = { 4 } height = '100%' >
+                        <FormControlLabel
+                            style = {{display: ( companyPage || generalSettingPage )? 'none': null}}
+                            control={
+                                <Switch
+                                checked={this.state.playerSetting}
+                                onChange={this.handleSwitchOnChange('playerSetting')}
+                                aria-label="playerSetting"
+                                />
+                            }
+                            label="Player Profile"
+                        />
+                        <FormControlLabel
+                            style = {{display: (generalSettingPage || playerSettingPage) ? 'none':null}}
+                            control={
+                                <Switch
+                                checked={this.state.companyDescription}
+                                onChange={this.handleSwitchOnChange('companyDescription')}
+                                aria-label="companyDescription"
+                                />
+                            }
+                            label="Company Description"
+                        />
+                        <FormControlLabel
+                            style = {{display: (companyPage || playerSettingPage) ? 'none':null}}
+                            control={
+                                <Switch
+                                checked={this.state.generalSetting}
+                                onChange={this.handleSwitchOnChange('generalSetting')}
+                                aria-label="generalSetting"
+                                />
+                            }
+                            label="General Setting"
+                        />
+                    <Paper style = {{display:gameSettingPage?'block': 'none'}} className = { classes.root } elevation = { 4 } height = '100%' >
                             <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > Player Setting </Typography>
                             <TextField
                                 error = {this.state.firmNumError}
@@ -459,138 +561,65 @@ class GameSetting extends React.Component {
                             />
                             <Typography style={{marginTop:10}} color = "secondary" type="body2" component="p"  > {'Price = ' + this.state.demandConstant + ' + ' + this.state.demandSlope+' Quantity' }</Typography>
                             <br/><br/><br/>
-                            <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > Additional Setting </Typography>
-                            
-                            <FormControlLabel
-                                control={
-                                    <Switch
-                                    checked={this.state.increaseInCapacity}
-                                    onChange={this.handleSwitchOnChange('increaseInCapacity')}
-                                    aria-label="increaseInCapacity"
-                                    />
-                                }
-                                label="Increase in Capacity"
-                            />
-                            <FormControlLabel
-                                control={
-                                    <Switch
-                                    checked={this.state.advertisementImplement}
-                                    onChange={this.handleSwitchOnChange('advertisementImplement')}
-                                    aria-label="advertisementImplement"
-                                    />
-                                }
-                                label="Advertisement Implementation"
-                            />
-                            <FormControlLabel
-                                control={
-                                    <Switch
-                                    checked={this.state.taxComposition}
-                                    onChange={this.handleSwitchOnChange('taxComposition')}
-                                    aria-label="taxComposition"
-                                    />
-                                }
-                                label="Tax Composition"
-                            />
-                            <FormControlLabel
-                                control={
-                                    <Switch
-                                    checked={this.state.productionDifferentiation}
-                                    onChange={this.handleSwitchOnChange('productionDifferentiation')}
-                                    aria-label="productionDifferentiation"
-                                    />
-                                }
-                                label="Production Differentiation"
-                            />
-                            
-                    </Paper>       
-                    <Paper style = {{display:this.state.playerSetting?'block':'none'}} className = { classes.root } elevation = { 4 } height = '100%' >
-                            <Table className={classes.table} >
-                                <TableHead>
-                                <TableRow>
-                                <TableCell >Player Profile</TableCell>
-                                {Array.apply(null, {length: this.state.firmNum? this.state.firmNum:1}).map(Number.call, Number).map(function(v){
-                                    if(v+1 <= 5){
-                                    return(
-                                        <TableCell key = {v+1} value={v+1}>{"Company " +(v+1)}</TableCell>
+                            <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > Additional Settings </Typography>
+                            {
+                                [
+                                    {label: "Increase in Capacity", stateName:'increaseInCapacity'},
+                                    {label: "Advertisement Implementation", stateName:'advertisementImplement'},
+                                    {label: "Tax Composition", stateName:'taxComposition'},
+                                    {label: "Production Differentiation", stateName:'productionDifferentiation'},
+
+                                ].map(function(data){
+                                    return (
+                                        <FormControlLabel
+                                            control={
+                                            <Switch
+                                            checked={this.state.increaseInCapacity}
+                                            onChange={this.handleSwitchOnChange(data.stateName)}
+                                            aria-label={data.stateName}
+                                            />
+                                        }
+                                        label={data.label}
+                                        />
                                     )
-                                }
-                                })}
-                                </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                {this.renderTableRowFive(1, 'Company Name', 'companyName', 'Company Name',true,null)}
-                                {this.renderTableTitle(2, 'Production Cost','title')}
-                                {this.renderTableRowFive(3, 'Constant', 'constant', 'Constant',true)}
-                                {this.renderTableRowFive(4, 'Coefficient 1', 'coefficientOne', 'Coefficient 1',true)}
-                                {this.renderTableRowFive(5, 'Coefficient 2', 'coefficientTwo', 'Coefficient 2',true)}
-                                {this.renderTableRowFive(6, 'Coefficient 3', 'coefficientThree', 'Coefficient 3',true)}
-                                {this.renderTableTitle(7, 'Production Capacity','title')}                          
-                                {this.renderTableRowFive(8, 'Maximum', 'maximum', 'Maximum',true)}
-                                {this.renderTableRowFive(9, 'Minimum', 'minimum', 'Minimum',true)}
-                                {this.renderTableTitle(10, 'Balance Sheet','title',true)}                          
-                                {this.renderTableTitle(11, 'Asset','subheading',true)}                          
-                                {this.renderTableRowFive(12, 'Cash', 'assetCash', 'Cash',true)}
-                                {this.renderTableRowFive(13, 'Plant, Property and Equipment', 'assetPPE', 'Plant..',true)}        
-                                {this.renderTableRowFive(14, 'Land', 'assetLand', 'Land',true)}
-                                {this.renderAddUP(15,'Total Asset',['assetCash','assetLand','assetPPE'], true)}                 
-                                {this.renderTableTitle(16, 'Liabilities','subheading')}                          
-                                {this.renderTableRowFive(17, 'Borrwoing', 'liabilitiesBorrwoing', 'Borrwoing',true)}
-                                {this.renderAddUP(18,'Total Liabilities',['liabilitiesBorrwoing'], true)}
-                                {this.renderTableTitle(19, 'Equity','subheading')}      
-                                {this.renderTableRowFive(20, 'Share Capital', 'shareCapital', 'Share Capital',true)} 
-                                {this.renderTableTitle(21, 'Retained Earnings',null)}
-                                {this.renderTableRowFive(22, 'Beg.', 'beg', 'Beg.',true)}
-                                {this.renderTableRowFive(23, 'Net income', 'netIncome', 'Net Income',true)}        
-                                {this.renderAddUP(24,'Total Retained Earnings',['beg','netIncome'], true)}
-                                {this.renderAddUP(25,'Total Equity',['beg','netIncome','shareCapital'], true)}
-                                </TableBody>
-                                </Table>
-                            
+                                }.bind(this))
+                            }
+                    </Paper>       
+                    <Paper style = {{display: companyPage? 'block' : 'none'}} className = { classes.root } elevation = { 4 } height = '100%'>
+                        <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > Company Description </Typography>
+                        {this.renderDescription()}
+                    </Paper>
+                    <Paper style = {{display:this.state.playerSetting? 'block':'none'}} className = { classes.root } elevation = { 4 } height = '100%' >
+                            {this.renderTable(true)}
                     </Paper>  
                     <Paper style = {{display:this.state.playerSetting? this.state.firmNum > 5 ? 'block':'none':'none'}} className = { classes.root } elevation = { 4 } height = '100%' >
-                            <Table className={classes.table} >
-                                <TableHead>
-                                <TableRow>
-                                <TableCell >Player Profile</TableCell>
-                                {Array.apply(null, {length: this.state.firmNum? this.state.firmNum:1}).map(Number.call, Number).map(function(v){
-                                    if(v+1 > 5){
-                                    return(
-                                        <TableCell key = {v+1} value={v+1}>{"Company " +(v+1)}</TableCell>
-                                    )
-                                }
-                                })}
-                                </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                {this.renderTableRowFive(1, 'Company Name', 'companyName', 'Company Name',false,null)}
-                                {this.renderTableTitle(2, 'Production Cost','title')}
-                                {this.renderTableRowFive(3, 'Constant', 'constant', 'Constant',false)}
-                                {this.renderTableRowFive(4, 'Coefficient 1', 'coefficientOne', 'Coefficient 1',false)}
-                                {this.renderTableRowFive(5, 'Coefficient 2', 'coefficientTwo', 'Coefficient 2',false)}
-                                {this.renderTableRowFive(6, 'Coefficient 3', 'coefficientThree', 'Coefficient 3',false)}
-                                {this.renderTableTitle(7, 'Production Capacity','title')}                          
-                                {this.renderTableRowFive(8, 'Maximum', 'maximum', 'Maximum',false)}
-                                {this.renderTableRowFive(9, 'Minimum', 'minimum', 'Minimum',false)}
-                                {this.renderTableTitle(10, 'Balance Sheet','title',false)}                          
-                                {this.renderTableTitle(11, 'Asset','subheading',false)}                          
-                                {this.renderTableRowFive(12, 'Cash', 'assetCash', 'Cash',false)}
-                                {this.renderTableRowFive(13, 'Plant, Property and Equipment', 'assetPPE', 'Plant..',false)}        
-                                {this.renderTableRowFive(14, 'Land', 'assetLand', 'Land',false)}
-                                {this.renderAddUP(15,'Total Asset',['assetCash','assetLand','assetPPE'], false)}                 
-                                {this.renderTableTitle(16, 'Liabilities','subheading')}                          
-                                {this.renderTableRowFive(17, 'Borrwoing', 'liabilitiesBorrwoing', 'Borrwoing',false)}
-                                {this.renderAddUP(18,'Total Liabilities',['liabilitiesBorrwoing'], false)}
-                                {this.renderTableTitle(19, 'Equity','subheading')}      
-                                {this.renderTableRowFive(20, 'Share Capital', 'shareCapital', 'Share Capital',false)} 
-                                {this.renderTableTitle(21, 'Retained Earnings',null)}
-                                {this.renderTableRowFive(22, 'Beg.', 'beg', 'Beg.',false)}
-                                {this.renderTableRowFive(23, 'Net income', 'netIncome', 'Net Income',false)}        
-                                {this.renderAddUP(24,'Total Retained Earnings',['beg','netIncome'], false)}
-                                {this.renderAddUP(25,'Total Equity',['beg','netIncome','shareCapital'], false)}
-                                </TableBody>
-                                </Table>
-                            
+                             {this.renderTable(false)}
                     </Paper>    
+                    <Paper style = {{display: generalSettingPage? 'block':'none'}} className = { classes.root } elevation = { 4 } height = '100%'>
+                        {
+                        [
+                            {title: 'Game Rules', idLabel: 'gameRule'},
+                            {title: 'Description Of Firms', idLabel: 'descriptionOfFirms'},
+                            {title: 'Market Description', idLabel: 'marketDescription'},
+                            {title: "Goal of Firms", idLabel: 'goalOfFirms'},
+                        ].map(function(data){
+                            return(
+                            <div>
+                            <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > {data.title} </Typography>
+                            <TextField
+                            id={data.idLabel}
+                            label={data.title}
+                            multiline
+                            row="4"
+                            className={classes.textField}
+                            onChange={this.handleTextOnChange(data.idLabel)}
+                            margin="normal"
+                            fullWidth
+                            />
+                            <br/><br/><br/><br/>
+                            </div>)
+                        }.bind(this))}
+                    </Paper>
                     <Button raised color="primary" className={classes.fullWidthButton} type="submit">
                                     Submit
                             </Button>       
