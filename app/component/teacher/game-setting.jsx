@@ -6,7 +6,7 @@ import Typography from 'material-ui/Typography';
 import Grid from 'material-ui/Grid';
 import Button from 'material-ui/Button';
 import TextField from 'material-ui/TextField';
-import ApplcationBar from '../AppBar'
+import ApplicationBar from '../AppBar'
 import Select from 'material-ui/Select';
 import { MenuItem } from 'material-ui/Menu';
 import { FormControl } from 'material-ui/Form';
@@ -14,6 +14,7 @@ import Input, { InputLabel } from 'material-ui/Input';
 import Switch from 'material-ui/Switch';
 import { FormControlLabel } from 'material-ui/Form';
 import Snackbar from 'material-ui/Snackbar';
+import { Redirect } from 'react-router';
 import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Table';
 const styles = theme => ({
     root: theme.mixins.gutters({
@@ -21,7 +22,6 @@ const styles = theme => ({
         paddingBottom: 8,
         marginTop: theme.spacing.unit * 2,
         overflowX: 'auto',
-
     }),
     barPaper: theme.mixins.gutters({
         paddingTop: 16,
@@ -58,7 +58,8 @@ class GameSetting extends React.Component {
             roomNum: this.props.match.params.id,
             playerSetting: false,
             generalSetting: false,
-            companyDescription: false  
+            companyDescription: false,
+            gameStart: false
         }
         let that = this;
         this.classes = props.classes;
@@ -161,12 +162,30 @@ class GameSetting extends React.Component {
         var transferData = {
             ...companys,
             roomInfo: roomInfo,
-            timeStamp: new Date()
+            timeStamp: new Date(),
+            roomNum: this.state.roomNum
         };
         if(transferData.roomInfo.constant && transferData.roomInfo.firmNum && transferData.roomInfo.slope && transferData.roomInfo.roundNum && !printerror){
             this.socket.emit('GAME_SETTING',  transferData);
-            this.database.database().ref(transferData.timeStamp.toString()).set(
-                transferData
+            this.database.database().ref(transferData.roomInfo.roomNum).child('on').set(transferData, function(err){
+                if(err){
+                    console.log(err);
+                }else{
+                    that.database.database().ref(transferData.roomInfo.roomNum).child('on').child('console').push().set(
+                        {time:  new Date().toLocaleString('en-GB', {timeZone:'Asia/Hong_Kong'}), message: 'Successfully created Room.'+transferData.roomNum},
+                        function(err){
+                            if(err){
+                                console.log(err);
+                            }else{
+                                console.log('success');
+                                that.setState({
+                                    gameStart: true
+                                })
+                            }
+                        }
+                    )     
+                }
+            }
             );
             console.log(transferData);
         }else{
@@ -256,7 +275,7 @@ class GameSetting extends React.Component {
         }else{
             return(
                 <TableRow key={key}>
-                    <TableCell padding="dense">{title}</TableCell>
+                    <TableCell padding="dense" width = '25%'>{title}</TableCell>
                     {Array.apply(null, {length: this.state.firmNum? this.state.firmNum:1}).map(Number.call, Number).map(function(v){
                         if(v+1 > 5){
                         let k = v+1;
@@ -363,7 +382,7 @@ class GameSetting extends React.Component {
                 </TableBody>
             </Table>
             <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > Balance Sheet </Typography>
-            <Typography style={{marginTop:10}} color = "secondary" type="body1" component="h2"  > Production Capacity </Typography>
+            <Typography style={{marginTop:10}} color = "secondary" type="body1" component="h2"  > Asset </Typography>
             <Table className={classes.table} >
                 <TableBody>
                     {this.renderTableRowFive(12, 'Cash', 'assetCash', 'Cash',less)}
@@ -406,6 +425,7 @@ class GameSetting extends React.Component {
         for(var i = 1; i <= that.state.firmNum; i ++){
             description.push(
                 <TextField
+                    key = {'company'+i}
                     id={"company_"+i+' Des'}
                     label={"Company " + i + ' Description'}
                     multiline
@@ -426,210 +446,216 @@ class GameSetting extends React.Component {
         var companyPage = this.state.companyDescription;
         var playerSettingPage = this.state.playerSetting;
         var generalSettingPage = this.state.generalSetting;
-        return (<div> 
-                    <ApplcationBar type = 'GameSetting'/>
-                    <Grid container 
-                    alignItems = 'center'
-                    justify = 'center'
-                    height = '100%'
-                    direction = 'row'>
-                    <Grid item xs = {10} style={{marginTop:10}}>
-                            <Typography color = "secondary" type="display1" component="h2"  > {'Room ' + this.state.roomNum} </Typography>
-                            <Typography color = "secondary" type="body2" component="p"  > This page is for lecturer to set the initial setting of the game</Typography>
-                    </Grid>      
-                    <Grid item xs = {10}>
-                    <form onSubmit={this.handleSubmit} className={classes.container} noValidate autoComplete="off">
-                        <FormControlLabel
-                            style = {{display: ( companyPage || generalSettingPage )? 'none': null}}
-                            control={
-                                <Switch
-                                checked={this.state.playerSetting}
-                                onChange={this.handleSwitchOnChange('playerSetting')}
-                                aria-label="playerSetting"
-                                />
-                            }
-                            label="Player Profile"
-                        />
-                        <FormControlLabel
-                            style = {{display: (generalSettingPage || playerSettingPage) ? 'none':null}}
-                            control={
-                                <Switch
-                                checked={this.state.companyDescription}
-                                onChange={this.handleSwitchOnChange('companyDescription')}
-                                aria-label="companyDescription"
-                                />
-                            }
-                            label="Company Description"
-                        />
-                        <FormControlLabel
-                            style = {{display: (companyPage || playerSettingPage) ? 'none':null}}
-                            control={
-                                <Switch
-                                checked={this.state.generalSetting}
-                                onChange={this.handleSwitchOnChange('generalSetting')}
-                                aria-label="generalSetting"
-                                />
-                            }
-                            label="General Setting"
-                        />
-                    <Paper style = {{display:gameSettingPage?'block': 'none'}} className = { classes.root } elevation = { 4 } height = '100%' >
-                            <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > Player Setting </Typography>
-                            <TextField
-                                error = {this.state.firmNumError}
-                                helperText = {this.state.firmNumHelper}
-                                id="firmNum"
-                                label="Number of Firms"
-                                className={classes.textField}
-                                onChange={this.handleTextOnChange('firmNum')}
-                                type="number"
-                                fullWidth
-                                margin='normal'
-                                required
-                            />
-                            <br/><br/><br/>
-                            <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > Market Information </Typography>
-                            <FormControl fullWidth margin="normal">
-                                <InputLabel htmlFor="market-type">Market Type</InputLabel> 
-                                <Select
-                                    value={this.state.marketType}
-                                    onChange={this.handleSelectOnChange}
-                                    input={<Input name="marketType" id="market-type" />}   
-                                >
-                                    <MenuItem value={'monoply'}>Monoply</MenuItem>
-                                    <MenuItem value={'cournot'}>Cournot</MenuItem>
-                                    <MenuItem value={'stackelberg'}>Stackelberg</MenuItem>
-                                </Select>
-                            </FormControl>
-                            {
-                                this.state.marketType === 'stackelberg' ? 
-                                <FormControl fullWidth margin="normal">
-                                <InputLabel htmlFor="leader">Leader</InputLabel> 
-                                <Select
-                                value={this.state.leader}
-                                onChange={this.handleSelectOnChange}
-                                input={<Input name="leader" id="leader" />}   
-                                >
-                                {Array.apply(null, {length: this.state.firmNum? this.state.firmNum:1}).map(Number.call, Number).map(function(v){
-                                    if(v+1 <= 10){
-                                    return(
-                                        <MenuItem key = {v+1} value={v+1}>{v+1}</MenuItem>
-                                    )
+        if(this.state.gameStart){
+            return <Redirect to={"/teacher_gamestart/" + that.state.roomNum} />;
+        }
+        else{
+            return (<div> 
+                        <ApplicationBar type = 'GameSetting'/>
+                        <Grid container 
+                        alignItems = 'center'
+                        justify = 'center'
+                        height = '100%'
+                        direction = 'row'>
+                        <Grid item xs = {10} style={{marginTop:10}}>
+                                <Typography color = "secondary" type="display1" component="h2"  > {'Room ' + this.state.roomNum} </Typography>
+                                <Typography color = "secondary" type="body2" component="p"  > This page is for lecturer to set the initial setting of the game</Typography>
+                        </Grid>      
+                        <Grid item xs = {10}>
+                        <form onSubmit={this.handleSubmit} className={classes.container} noValidate autoComplete="off">
+                            <FormControlLabel
+                                style = {{display: ( companyPage || generalSettingPage )? 'none': null}}
+                                control={
+                                    <Switch
+                                    checked={this.state.playerSetting}
+                                    onChange={this.handleSwitchOnChange('playerSetting')}
+                                    aria-label="playerSetting"
+                                    />
                                 }
-                                })}
-                                </Select>
-                                </FormControl> : null
-                            }
-                            <br/><br/><br/>
-                            <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > Round Setting </Typography>
-                            <TextField
-                                error = {this.state.roundNumError}
-                                helperText = {this.state.roundNumHelper}
-                                id="roundNum"
-                                label="Number of Rounds"
-                                className={classes.textField}
-                                onChange={this.handleTextOnChange('roundNum')}
-                                type="number"
-                                fullWidth
-                                margin='normal'
-                                required
+                                label="Player Profile"
                             />
-                            <br/><br/><br/>
-                            <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > Demand Curve </Typography>
-                            <TextField
-                                error = {this.state.demandConstantError}
-                                helperText = {this.state.demandConstantHelper}
-                                id="demandConstant"
-                                label="Constant"
-                                className={classes.textField}
-                                onChange={this.handleTextOnChange('demandConstant')}
-                                type="number"
-                                fullWidth
-                                margin='normal'
-                                required
+                            <FormControlLabel
+                                style = {{display: (generalSettingPage || playerSettingPage) ? 'none':null}}
+                                control={
+                                    <Switch
+                                    checked={this.state.companyDescription}
+                                    onChange={this.handleSwitchOnChange('companyDescription')}
+                                    aria-label="companyDescription"
+                                    />
+                                }
+                                label="Company Description"
                             />
-                            <TextField
-                                error = {this.state.demandSlopeError}
-                                helperText = {this.state.demandSlopeHelper}
-                                id="demandSlope"
-                                label="Slope"
-                                className={classes.textField}
-                                onChange={this.handleTextOnChange('demandSlope')}
-                                type="number"
-                                fullWidth
-                                margin='normal'
-                                required
+                            <FormControlLabel
+                                style = {{display: (companyPage || playerSettingPage) ? 'none':null}}
+                                control={
+                                    <Switch
+                                    checked={this.state.generalSetting}
+                                    onChange={this.handleSwitchOnChange('generalSetting')}
+                                    aria-label="generalSetting"
+                                    />
+                                }
+                                label="General Setting"
                             />
-                            <Typography style={{marginTop:10}} color = "secondary" type="body2" component="p"  > {'Price = ' + this.state.demandConstant + ' + ' + this.state.demandSlope+' Quantity' }</Typography>
-                            <br/><br/><br/>
-                            <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > Additional Settings </Typography>
-                            {
-                                [
-                                    {label: "Increase in Capacity", stateName:'increaseInCapacity'},
-                                    {label: "Advertisement Implementation", stateName:'advertisementImplement'},
-                                    {label: "Tax Composition", stateName:'taxComposition'},
-                                    {label: "Production Differentiation", stateName:'productionDifferentiation'},
+                        <Paper style = {{display:gameSettingPage?'block': 'none'}} className = { classes.root } elevation = { 4 } height = '100%' >
+                                <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > Player Setting </Typography>
+                                <TextField
+                                    error = {this.state.firmNumError}
+                                    helperText = {this.state.firmNumHelper}
+                                    id="firmNum"
+                                    label="Number of Firms"
+                                    className={classes.textField}
+                                    onChange={this.handleTextOnChange('firmNum')}
+                                    type="number"
+                                    fullWidth
+                                    margin='normal'
+                                    required
+                                />
+                                <br/><br/><br/>
+                                <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > Market Information </Typography>
+                                <FormControl fullWidth margin="normal">
+                                    <InputLabel htmlFor="market-type">Market Type</InputLabel> 
+                                    <Select
+                                        value={this.state.marketType}
+                                        onChange={this.handleSelectOnChange}
+                                        input={<Input name="marketType" id="market-type" />}   
+                                    >
+                                        <MenuItem value={'monoply'}>Monoply</MenuItem>
+                                        <MenuItem value={'cournot'}>Cournot</MenuItem>
+                                        <MenuItem value={'stackelberg'}>Stackelberg</MenuItem>
+                                    </Select>
+                                </FormControl>
+                                {
+                                    this.state.marketType === 'stackelberg' ? 
+                                    <FormControl fullWidth margin="normal">
+                                    <InputLabel htmlFor="leader">Leader</InputLabel> 
+                                    <Select
+                                    value={this.state.leader}
+                                    onChange={this.handleSelectOnChange}
+                                    input={<Input name="leader" id="leader" />}   
+                                    >
+                                    {Array.apply(null, {length: this.state.firmNum? this.state.firmNum:1}).map(Number.call, Number).map(function(v){
+                                        if(v+1 <= 10){
+                                        return(
+                                            <MenuItem key = {v+1} value={v+1}>{v+1}</MenuItem>
+                                        )
+                                    }
+                                    })}
+                                    </Select>
+                                    </FormControl> : null
+                                }
+                                <br/><br/><br/>
+                                <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > Round Setting </Typography>
+                                <TextField
+                                    error = {this.state.roundNumError}
+                                    helperText = {this.state.roundNumHelper}
+                                    id="roundNum"
+                                    label="Number of Rounds"
+                                    className={classes.textField}
+                                    onChange={this.handleTextOnChange('roundNum')}
+                                    type="number"
+                                    fullWidth
+                                    margin='normal'
+                                    required
+                                />
+                                <br/><br/><br/>
+                                <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > Demand Curve </Typography>
+                                <TextField
+                                    error = {this.state.demandConstantError}
+                                    helperText = {this.state.demandConstantHelper}
+                                    id="demandConstant"
+                                    label="Constant"
+                                    className={classes.textField}
+                                    onChange={this.handleTextOnChange('demandConstant')}
+                                    type="number"
+                                    fullWidth
+                                    margin='normal'
+                                    required
+                                />
+                                <TextField
+                                    error = {this.state.demandSlopeError}
+                                    helperText = {this.state.demandSlopeHelper}
+                                    id="demandSlope"
+                                    label="Slope"
+                                    className={classes.textField}
+                                    onChange={this.handleTextOnChange('demandSlope')}
+                                    type="number"
+                                    fullWidth
+                                    margin='normal'
+                                    required
+                                />
+                                <Typography style={{marginTop:10}} color = "secondary" type="body2" component="p"  > {'Price = ' + this.state.demandConstant + ' + ' + this.state.demandSlope+' Quantity' }</Typography>
+                                <br/><br/><br/>
+                                <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > Additional Settings </Typography>
+                                {
+                                    [
+                                        {label: "Increase in Capacity", stateName:'increaseInCapacity'},
+                                        {label: "Advertisement Implementation", stateName:'advertisementImplement'},
+                                        {label: "Tax Composition", stateName:'taxComposition'},
+                                        {label: "Production Differentiation", stateName:'productionDifferentiation'},
 
-                                ].map(function(data){
-                                    return (
-                                        <FormControlLabel
-                                            control={
-                                            <Switch
-                                            checked={this.state.increaseInCapacity}
-                                            onChange={this.handleSwitchOnChange(data.stateName)}
-                                            aria-label={data.stateName}
+                                    ].map(function(data, index){
+                                        return (
+                                            <FormControlLabel
+                                                key = {data.stateName + index}
+                                                control={
+                                                <Switch
+                                                checked={this.state.increaseInCapacity}
+                                                onChange={this.handleSwitchOnChange(data.stateName)}
+                                                aria-label={data.stateName}
+                                                />
+                                            }
+                                            label={data.label}
                                             />
-                                        }
-                                        label={data.label}
-                                        />
-                                    )
-                                }.bind(this))
-                            }
-                    </Paper>       
-                    <Paper style = {{display: companyPage? 'block' : 'none'}} className = { classes.root } elevation = { 4 } height = '100%'>
-                        <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > Company Description </Typography>
-                        {this.renderDescription()}
-                    </Paper>
-                    <Paper style = {{display:this.state.playerSetting? 'block':'none'}} className = { classes.root } elevation = { 4 } height = '100%' >
-                            {this.renderTable(true)}
-                    </Paper>  
-                    <Paper style = {{display:this.state.playerSetting? this.state.firmNum > 5 ? 'block':'none':'none'}} className = { classes.root } elevation = { 4 } height = '100%' >
-                             {this.renderTable(false)}
-                    </Paper>    
-                    <Paper style = {{display: generalSettingPage? 'block':'none'}} className = { classes.root } elevation = { 4 } height = '100%'>
-                        {
-                        [
-                            {title: 'Game Rules', idLabel: 'gameRule'},
-                            {title: 'Description Of Firms', idLabel: 'descriptionOfFirms'},
-                            {title: 'Market Description', idLabel: 'marketDescription'},
-                            {title: "Goal of Firms", idLabel: 'goalOfFirms'},
-                        ].map(function(data){
-                            return(
-                            <div>
-                            <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > {data.title} </Typography>
-                            <TextField
-                            id={data.idLabel}
-                            label={data.title}
-                            multiline
-                            row="4"
-                            className={classes.textField}
-                            onChange={this.handleTextOnChange(data.idLabel)}
-                            margin="normal"
-                            fullWidth
-                            />
-                            <br/><br/><br/><br/>
-                            </div>)
-                        }.bind(this))}
-                    </Paper>
-                    <Button raised color="primary" className={classes.fullWidthButton} type="submit">
-                                    Submit
-                            </Button>       
-                    </form>
+                                        )
+                                    }.bind(this))
+                                }
+                        </Paper>       
+                        <Paper style = {{display: companyPage? 'block' : 'none'}} className = { classes.root } elevation = { 4 } height = '100%'>
+                            <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > Company Description </Typography>
+                            {this.renderDescription()}
+                        </Paper>
+                        <Paper style = {{display:this.state.playerSetting? 'block':'none'}} className = { classes.root } elevation = { 4 } height = '100%' >
+                                {this.renderTable(true)}
+                        </Paper>  
+                        <Paper style = {{display:this.state.playerSetting? this.state.firmNum > 5 ? 'block':'none':'none'}} className = { classes.root } elevation = { 4 } height = '100%' >
+                                {this.renderTable(false)}
+                        </Paper>    
+                        <Paper style = {{display: generalSettingPage? 'block':'none'}} className = { classes.root } elevation = { 4 } height = '100%'>
+                            {
+                            [
+                                {title: 'Game Rules', idLabel: 'gameRule'},
+                                {title: 'Description Of Firms', idLabel: 'descriptionOfFirms'},
+                                {title: 'Market Description', idLabel: 'marketDescription'},
+                                {title: "Goal of Firms", idLabel: 'goalOfFirms'},
+                            ].map(function(data){
+                                return(
+                                <div>
+                                <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > {data.title} </Typography>
+                                <TextField
+                                id={data.idLabel}
+                                label={data.title}
+                                multiline
+                                row="4"
+                                className={classes.textField}
+                                onChange={this.handleTextOnChange(data.idLabel)}
+                                margin="normal"
+                                fullWidth
+                                />
+                                <br/><br/><br/><br/>
+                                </div>)
+                            }.bind(this))}
+                        </Paper>
+                        <Button raised color="primary" className={classes.fullWidthButton} type="submit">
+                                        Submit
+                                </Button>       
+                        </form>
 
+                        </Grid>
                     </Grid>
-                </Grid>
-                {this.renderSnackBar()}
-                </div>
-        );
+                    {this.renderSnackBar()}
+                    </div>
+            );
+        }
     }
 }
 GameSetting.propTypes = {

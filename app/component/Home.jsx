@@ -39,6 +39,7 @@ class Home extends React.Component{
             open: false,
             snackbarMessage: ''
         }
+        this.database = this.props.database;
         let that = this;
         this.classes = props.classes;
         let classes = this.classes;
@@ -80,11 +81,32 @@ class Home extends React.Component{
             ev.preventDefault();
             if(this.state.isStudent){
                 if(this.state.stuRoomNum && this.state.stuGroupNum){
-                    let transferData = {
-                        roomNum: this.state.stuRoomNum,
-                        groupNum: this.state.stuGroupNum
-                    };
-                    this.socket.emit('JOIN_ROOM',transferData);
+                    
+                    this.database.database().ref(this.state.stuRoomNum).child('on').once('value').then(function(data){
+                            console.log(data.val().roomInfo.firmNum)
+                            console.log(that.state.stuGroupNum)
+                            if(that.state.stuGroupNum <= Number(data.val().roomInfo.firmNum) && that.state.stuGroupNum > 0){
+                                let transferData = {
+                                    roomNum: that.state.stuRoomNum,
+                                    groupNum: that.state.stuGroupNum
+                                };
+                                that.socket.emit('JOIN_ROOM',transferData);
+                                
+                            }else{
+                                that.setState({
+                                    open:true,
+                                    snackbarMessage:'WARNING! Sorry, the group number is invalid for this room'
+                                })
+                            }
+                    },function(err){
+                        if(err){
+                            that.setState({
+                                open:true,
+                                snackbarMessage:'WARNING! Sorry, there is no such room'
+                            })
+                        }
+                    })
+                    
                 }else{
                     that.setState({
                         open: true,

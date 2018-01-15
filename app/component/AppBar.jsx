@@ -28,6 +28,8 @@ class ApplicationBar extends React.Component {
             return 'Business Strategy Stimulation System'
           case 'GameSetting':
             return 'Game Setting'
+          case 'teacher_gamestart':
+            return 'Game Start'
       }
   }
   render() { 
