@@ -3,6 +3,7 @@ import { Switch, Route } from 'react-router-dom'
 import { withStyles } from 'material-ui/styles';
 import PropTypes from 'prop-types';
 import GameSetting from './teacher/game-setting'
+import Game from './student/game'
 import TeacherGameStart from './teacher/game-start'
 import Home from './Home'
 import io from "socket.io-client";
@@ -11,7 +12,7 @@ import config from '../credential/key'
 class RouterWrapper extends React.Component {  
   constructor(props){
       super(props);
-      this.socket = io('http://4fcd3b3e.ngrok.io');
+      this.socket = io('http://localhost:8080/');
       this.database = firebase.initializeApp(config,'database')
   }
   
@@ -21,6 +22,7 @@ class RouterWrapper extends React.Component {
                 <Route exact path="/" render={props =><Home socket = {this.socket} database = {this.database} {...props} />}/>
                 <Route path = '/teacher_gamestart/:id' render = {props => <TeacherGameStart socket = {this.socket} database = {this.database} {...props}/>}/>
                 <Route path='/game_setting/:id' render={props =><GameSetting socket = {this.socket} database = {this.database}{...props} />}/>
+                <Route path='/student_game/:id' render = {props => <Game socket={this.socket} database = {this.database} {...props}/>}/>
             </Switch>
     )
   }

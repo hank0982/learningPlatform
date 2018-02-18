@@ -176,14 +176,20 @@ class GameSetting extends React.Component {
                         function(err){
                             if(err){
                                 console.log(err);
-                            }else{
-                                console.log('success');
+                            }
+                        }
+                    ).then(function(){
+                        that.database.database().ref(transferData.roomInfo.roomNum).child('on').child('round').set({
+                            currentRound: 1,
+                            roundStarted: false,
+                            previousRoundData: null,
+                        }).then(function(){
                                 that.setState({
                                     gameStart: true
                                 })
                             }
-                        }
-                    )     
+                        )
+                    })   
                 }
             }
             );
@@ -237,9 +243,15 @@ class GameSetting extends React.Component {
         let that = this;
         let name = company.name;
         let companyID = company.id;
+        var value = NaN;
+        if(parseFloat(event.target.value) != NaN){
+            value = parseFloat(event.target.value);
+        }else{
+            value = event.target.value;
+        }
         var obj = {
             ...this.state['company_'+companyID],
-            [name]: event.target.value
+            [name]: value
         }
         this.setState({
             ['company_'+companyID]: obj
@@ -429,7 +441,6 @@ class GameSetting extends React.Component {
                     id={"company_"+i+' Des'}
                     label={"Company " + i + ' Description'}
                     multiline
-                    row="4"
                     onChange={that.handleCompanyOnChange({name: 'companyDescription', id:i})}
                     className={classes.textField}
                     margin="normal"
@@ -599,7 +610,7 @@ class GameSetting extends React.Component {
                                                 key = {data.stateName + index}
                                                 control={
                                                 <Switch
-                                                checked={this.state.increaseInCapacity}
+                                                checked={this.state[data.stateName]}
                                                 onChange={this.handleSwitchOnChange(data.stateName)}
                                                 aria-label={data.stateName}
                                                 />
@@ -635,7 +646,6 @@ class GameSetting extends React.Component {
                                 id={data.idLabel}
                                 label={data.title}
                                 multiline
-                                row="4"
                                 className={classes.textField}
                                 onChange={this.handleTextOnChange(data.idLabel)}
                                 margin="normal"

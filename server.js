@@ -1,7 +1,8 @@
 var express = require('express');
 var app = express();
 var socket = require('socket.io');
-var rooms = [];
+//test :: need to delete before publish
+var rooms = [3];
 var path = require('path');
 app.use(express.static('public'));
 app.get('*/bundle.js', function(req, res) {
@@ -34,7 +35,7 @@ io.on('connection', (socket) => {
         console.log(data);
     });
     socket.on('JOIN_ROOM', function(data) {
-        if (rooms.includes(data.roomNum)) {
+        if (rooms.includes(parseInt(data.roomNum))) {
             socket.join(data.roomNum);
             socket.emit('SUCCESS', { type: 'success-1', msg: 'SUCCESS#1: You successfully join room: ' + data.roomNum });
             io.sockets.in(data.roomNum).emit('CONNECT_TO_ROOM', { roomNum: data.roomNum, groupNum: data.groupNum });

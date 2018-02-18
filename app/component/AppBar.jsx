@@ -30,6 +30,8 @@ class ApplicationBar extends React.Component {
             return 'Game Setting'
           case 'teacher_gamestart':
             return 'Game Start'
+          default:
+            return type
       }
   }
   render() { 

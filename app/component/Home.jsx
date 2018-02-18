@@ -81,7 +81,6 @@ class Home extends React.Component{
             ev.preventDefault();
             if(this.state.isStudent){
                 if(this.state.stuRoomNum && this.state.stuGroupNum){
-                    
                     this.database.database().ref(this.state.stuRoomNum).child('on').once('value').then(function(data){
                             console.log(data.val().roomInfo.firmNum)
                             console.log(that.state.stuGroupNum)
@@ -91,7 +90,9 @@ class Home extends React.Component{
                                     groupNum: that.state.stuGroupNum
                                 };
                                 that.socket.emit('JOIN_ROOM',transferData);
-                                
+                                that.setState({
+                                    game: true
+                                })
                             }else{
                                 that.setState({
                                     open:true,
@@ -100,6 +101,7 @@ class Home extends React.Component{
                             }
                     },function(err){
                         if(err){
+                            console.log(err)
                             that.setState({
                                 open:true,
                                 snackbarMessage:'WARNING! Sorry, there is no such room'
@@ -221,6 +223,9 @@ class Home extends React.Component{
         let classes = this.classes
         if(this.state.gameSetting){
             return <Redirect push to={"/game_setting/" + this.state.roomNum} />;
+        }
+        if(this.state.game){
+            return <Redirect push to={'/student_game/'+this.state.stuRoomNum}/>;
         }
         return (
             <div>

@@ -35,6 +35,24 @@ module.exports = {
         // }),
         // new webpack.optimize.DedupePlugin(), //dedupe similar code 
         // new webpack.optimize.UglifyJsPlugin(), //minify everything
+
+        // new webpack.NoErrorsPlugin(),
+        // new webpack.DefinePlugin({ 'process.env.NODE_ENV': '"production"' }),
+        // new webpack.optimize.OccurrenceOrderPlugin(),
+        // new webpack.optimize.DedupePlugin(),
+        // new webpack.optimize.UglifyJsPlugin({
+        //     compress: {
+        //         screw_ie8: true,
+        //         warnings: false
+        //     },
+        //     mangle: {
+        //         screw_ie8: true
+        //     },
+        //     output: {
+        //         comments: false,
+        //         screw_ie8: true
+        //     }
+        // })
     ],
     devServer: {
         historyApiFallback: true,
