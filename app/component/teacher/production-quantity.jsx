@@ -10,7 +10,7 @@ import ExpansionPanel, {
 import Card, { CardContent } from 'material-ui/Card';
 import Divider from 'material-ui/Divider';
 import ExpandMoreIcon from 'material-ui-icons/ExpandMore';
-import {LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend} from 'recharts';
+import {BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend} from 'recharts';
 const data = [
       {name: '1', pv: 2400,},
       {name: '2', pv: 1398,},
@@ -40,7 +40,7 @@ const styles = theme => ({
     },
   });
   
-class MarketPrice extends React.Component {  
+class ProductionQuantity extends React.Component {  
   constructor(props){
       super(props);
   }
@@ -62,15 +62,16 @@ class MarketPrice extends React.Component {
                     100
                     </Typography>
                 </div>
-                <LineChart width={600} height={125} data={data}
-                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
+                <BarChart width={600} height={300} data={data}
+                      margin={{top: 20, right: 30, left: 20, bottom: 5}}>
+                <XAxis dataKey="name"/>
+                <YAxis/>
+                <CartesianGrid strokeDasharray="3 3"/>
+                <Tooltip/>
                 <Legend />
-                <Line type="monotone" dataKey="pv" stroke="#8884d8" />
-                </LineChart>
+                <Bar dataKey="pv" stackId="a" fill="#8884d8" />
+                <Bar dataKey="uv" stackId="a" fill="#82ca9d" />
+                </BarChart>
                 </ExpansionPanelDetails>
                 
             </ExpansionPanel>
@@ -78,7 +79,7 @@ class MarketPrice extends React.Component {
     )
   }
 }
-MarketPrice.propTypes = {
+ProductionQuantity.propTypes = {
     classes: PropTypes.object.isRequired,
   };
-export default withStyles(styles)(MarketPrice)
+export default withStyles(styles)(ProductionQuantity)

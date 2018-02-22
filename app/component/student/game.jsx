@@ -96,13 +96,14 @@ class Game extends React.Component {
           if(roundInfo && roomInfo)
             return <MarketIntro roomInfo = {roomInfo} roundInfo = {roundInfo}/>
       }else if(value == 2){
-           if(roomInfo && roundInfo && groupNum)
+           if(roomInfo && roundInfo && groupNum){
             return <PlayerProfile database = {this.database} roomInfo = {roomInfo} roundInfo = {roundInfo} groupNum = {groupNum}/>
+           }
       }
   };
   render() { 
     const { classes } = this.props;
-    return (
+    return (  
             <div>
             <Grid container 
             alignItems = 'center'

@@ -43,6 +43,8 @@ const styles = theme => ({
 class MarketPrice extends React.Component {  
   constructor(props){
       super(props);
+      var database = this.props.database;
+     
   }
   render() { 
     const { classes } = this.props;
@@ -54,25 +56,24 @@ class MarketPrice extends React.Component {
                 <Typography className={classes.heading}>Graph</Typography>
                 </ExpansionPanelSummary>
                 <ExpansionPanelDetails> 
-                <div className={classes.column, classes.helper}>
-                    <Typography type="headline">
-                    Price<br />
-                    </Typography>
-                    <Typography type="body1">
-                    100
-                    </Typography>
-                </div>
-                <LineChart width={600} height={125} data={data}
-                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Line type="monotone" dataKey="pv" stroke="#8884d8" />
-                </LineChart>
-                </ExpansionPanelDetails>
-                
+                  <div className={classes.column, classes.helper}>
+                      <Typography type="headline">
+                      Price<br />
+                      </Typography>
+                      <Typography type="body1">
+                      100
+                      </Typography>
+                  </div>
+                  <LineChart width={600} height={125} data={data}
+                  margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Line type="monotone" dataKey="pv" stroke="#8884d8" />
+                  </LineChart>
+                </ExpansionPanelDetails>      
             </ExpansionPanel>
             </Grid>
     )

@@ -183,6 +183,7 @@ class GameSetting extends React.Component {
                             currentRound: 1,
                             roundStarted: false,
                             previousRoundData: null,
+                            endroundbutton: true,
                         }).then(function(){
                                 that.setState({
                                     gameStart: true
@@ -195,6 +196,7 @@ class GameSetting extends React.Component {
             );
             console.log(transferData);
         }else{
+            console.log(roomInfo)
             that.setState({
                 open: true,
                 snackbarMessage: 'WARNING! Please provide sufficient data'
@@ -203,8 +205,10 @@ class GameSetting extends React.Component {
     };
     handleTextOnChange = name => event => {
         let that = this;
+        var value;
+        value = event.target.value;
         this.setState({
-            [name]: event.target.value,
+            [name]: value,
         });
         function judge(max, min, helper){
 
@@ -244,11 +248,7 @@ class GameSetting extends React.Component {
         let name = company.name;
         let companyID = company.id;
         var value = NaN;
-        if(parseFloat(event.target.value) != NaN){
-            value = parseFloat(event.target.value);
-        }else{
-            value = event.target.value;
-        }
+        value = event.target.value;
         var obj = {
             ...this.state['company_'+companyID],
             [name]: value

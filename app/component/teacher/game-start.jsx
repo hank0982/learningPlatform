@@ -72,7 +72,7 @@ class TeacherGameStart extends React.Component {
               showEndScreen: data.val()
           })
       })
-      this.database.database().ref(this.roomNum).child('on').child('round').child('endround').on('value',function(data){
+      this.database.database().ref(this.roomNum).child('on').child('round').child('endroundbutton').on('value',function(data){
           that.setState({
               disableStartButton: data.val()
           })
@@ -88,19 +88,49 @@ class TeacherGameStart extends React.Component {
   addMessageToDatabase(message){
       this.database.database().ref(this.roomNum).child('on').child('console').push().set(message)
   }
-  endRound(ev){
-      ev.preventDefault();
-      this.database.database().ref(this.roomNum+'/on/round/endround').set(true);
-      this.addMessageToDatabase({message:'End Round'+ this.state.currentRound, time: new Date().toLocaleString('en-GB', {timeZone:'Asia/Hong_Kong'})})
-      this.database.database().ref(this.roomNum+'/on/round/endSession').set(true);
+  calculateRoundValue(){
+      let that = this;
+      return this.database.database().ref(this.roomNum+'/on/round/round'+this.state.currentRound).once('value').then(function(data){
+        var roundInfo = data.val();
+        var totalQuantityInThisRound = 0;
+        var totalCostArray = [];
+        for(var i = 1; i<=parseInt(that.state.startInfo.roomInfo.firmNum);i++){
+            var companyQuantity = parseInt(roundInfo[i].quantityProduction);
+            totalQuantityInThisRound = totalQuantityInThisRound + companyQuantity;
+            var coefficientOne = parseFloat(that.state.startInfo['company_'+i].coefficientOne)
+            var coefficientTwo = parseFloat(that.state.startInfo['company_'+i].coefficientTwo)
+            var coefficientThree = parseFloat(that.state.startInfo['company_'+i].coefficientThree)
+            var constant = parseFloat(that.state.startInfo['company_'+i].constant)
+            var totalCost = coefficientOne * companyQuantity + coefficientTwo * companyQuantity * companyQuantity + coefficientThree * companyQuantity *companyQuantity *companyQuantity + constant;
+            totalCostArray[i-1] = totalCost
+            that.database.database().ref(that.roomNum+'/on/round/round'+that.state.currentRound).child(i).child('totalCost').set(totalCost);
+            that.database.database().ref(that.roomNum+'/on/round/round'+that.state.currentRound).child(i).child('unitCost').set(totalCost/companyQuantity);
+        }
+        var price = parseFloat(that.state.startInfo.roomInfo.constant) - parseFloat(that.state.startInfo.roomInfo.slope) * totalQuantityInThisRound
+        that.database.database().ref(that.roomNum+'/on/round/round'+that.state.currentRound).child('price').set(price);
+        for(var i = 1; i<=parseInt(that.state.startInfo.roomInfo.firmNum);i++){
+            that.database.database().ref(that.roomNum+'/on/round/round'+that.state.currentRound).child(i).child('revenue').set(price * companyQuantity);
+            that.database.database().ref(that.roomNum+'/on/round/round'+that.state.currentRound).child(i).child('profit').set(price * companyQuantity - totalCostArray[i-1]);
+        }
+      })
   }
+  endRound(ev){
+      let that = this;
+      ev.preventDefault();
+      this.calculateRoundValue().then(function(){
+        that.database.database().ref(that.roomNum+'/on/round/endroundbutton').set(true);
+        that.addMessageToDatabase({message:'End Round'+ that.state.currentRound, time: new Date().toLocaleString('en-GB', {timeZone:'Asia/Hong_Kong'})})
+        that.database.database().ref(that.roomNum+'/on/round/endSession').set(true);
+      })
+  }
+  
   render() { 
     const { classes } = this.props;
     if(this.state.showEndScreen){
         return(
             <div>
                 <ApplicationBar type = 'Result'/>
-                <EndSession/>
+                <EndSession database = {this.database} roomNum = {this.roomNum}/>
             </div>
         )
     }else{

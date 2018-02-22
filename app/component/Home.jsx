@@ -80,6 +80,7 @@ class Home extends React.Component{
         this.handleSubmit = ev =>{
             ev.preventDefault();
             if(this.state.isStudent){
+                console.log(this.state.stuRoomNum)
                 if(this.state.stuRoomNum && this.state.stuGroupNum){
                     this.database.database().ref(this.state.stuRoomNum).child('on').once('value').then(function(data){
                             console.log(data.val().roomInfo.firmNum)
