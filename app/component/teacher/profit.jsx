@@ -10,7 +10,7 @@ import ExpansionPanel, {
 import Card, { CardContent } from 'material-ui/Card';
 import Divider from 'material-ui/Divider';
 import ExpandMoreIcon from 'material-ui-icons/ExpandMore';
-import {BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend} from 'recharts';
+import {LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend} from 'recharts';
 
 const styles = theme => ({
     root: {
@@ -32,7 +32,7 @@ const styles = theme => ({
     },
   });
   
-class ProductionQuantity extends React.Component {  
+class Profit extends React.Component {  
   constructor(props){
       super(props);
       var database = this.props.database;
@@ -41,7 +41,31 @@ class ProductionQuantity extends React.Component {
       this.state = {
         display: false
       }
-      database.database().ref(roomNum).child('on').child('round').once('value')
+      this.data = [];
+      database.database().ref(roomNum).child('on').child('round').once('value').then(function(data){
+          var roundInfo = data.val();
+          database.database().ref(roomNum).child('on').child('roomInfo').once('value').then(function(snap){
+            var roomInfo = snap.val();
+            for(var k = 1; k <= roundInfo.currentRound; k++){
+                that.data[k-1] = {
+                    name: k
+                }
+            }
+            for(var i = 1; i <= roundInfo.currentRound;i++){
+                for(var u = 1; u <= parseInt(roomInfo.firmNum); u++){
+                    that.data[i-1][u] = roundInfo['round'+i][u].profit
+                }
+            }
+            console.log(that.data)
+            that.setState({
+                display:true
+            })
+          })
+          
+      })
+  }
+  renderLineChart(){
+
   }
   render() { 
     const { classes } = this.props;
@@ -53,7 +77,16 @@ class ProductionQuantity extends React.Component {
             <Typography className={classes.heading}>Graph</Typography>
             </ExpansionPanelSummary>
             <ExpansionPanelDetails> 
-            
+            <LineChart width={600} height={300} data={this.data}
+            margin={{top: 5, right: 30, left: 20, bottom: 5}}>
+            <XAxis dataKey="name"/>
+            <YAxis/>
+            <CartesianGrid strokeDasharray="3 3"/>
+            <Tooltip/>
+            <Legend />
+            <Line type="monotone" dataKey="1" stroke="#8884d8" activeDot={{r: 8}}/>
+            <Line type="monotone" dataKey="2" stroke="#82ca9d" />
+            </LineChart>
             </ExpansionPanelDetails>
             
         </ExpansionPanel>
@@ -77,7 +110,7 @@ class ProductionQuantity extends React.Component {
    
   }
 }
-ProductionQuantity.propTypes = {
+Profit.propTypes = {
     classes: PropTypes.object.isRequired,
   };
-export default withStyles(styles)(ProductionQuantity)
+export default withStyles(styles)(Profit)

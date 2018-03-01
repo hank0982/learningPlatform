@@ -11,7 +11,7 @@ import Snackbar from 'material-ui/Snackbar';
 import { Redirect } from 'react-router';
 import { sha256 } from 'js-sha256';
 import ApplcationBar from './AppBar'
-
+import config from '../config'
 const styles = theme => ({
     root: theme.mixins.gutters({
       paddingTop: 16,
@@ -97,7 +97,7 @@ class Home extends React.Component{
                             }else{
                                 that.setState({
                                     open:true,
-                                    snackbarMessage:'WARNING! Sorry, the group number is invalid for this room'
+                                    snackbarMessage: config.warning_group_num_is_not_valid
                                 })
                             }
                     },function(err){
@@ -105,7 +105,7 @@ class Home extends React.Component{
                             console.log(err)
                             that.setState({
                                 open:true,
-                                snackbarMessage:'WARNING! Sorry, there is no such room'
+                                snackbarMessage:config.warning_wrong_room_num
                             })
                         }
                     })
@@ -113,7 +113,7 @@ class Home extends React.Component{
                 }else{
                     that.setState({
                         open: true,
-                        snackbarMessage: 'WARNING! Please provide sufficient data'
+                        snackbarMessage: config.warning_insufficient_data
                     });
                 }
             }else{
@@ -131,7 +131,7 @@ class Home extends React.Component{
                 }else{
                     that.setState({
                         open: true,
-                        snackbarMessage: 'WARNING! Please provide sufficient data'
+                        snackbarMessage: config.warning_insufficient_data
                     });
                 }
             }
@@ -163,7 +163,7 @@ class Home extends React.Component{
                             </form>
 
                             <Button raised color="accent" className={classes.fullWidthButton} onClick={this.buttonOnClick}>
-                                I want to be a lecturer
+                                {config.lecturer_button}
                             </Button>
                             
                         </div>
@@ -196,7 +196,7 @@ class Home extends React.Component{
                                 </Button>
                             </form>
                             <Button raised color="accent" className={classes.fullWidthButton} onClick={this.buttonOnClick}>
-                                I want to be a student
+                                {config.student_button}
                             </Button>
                         </div>
         };
@@ -234,7 +234,7 @@ class Home extends React.Component{
             <Grid container className = {classes.middleOfPage} alignItems='center' justify='center' height='100%'>
                 <Paper className={classes.root} elevation={4} height='100%'>
                     <Typography align="center" type="headline" component="h1">
-                        Business Strategy Stimulation System 
+                        {config.app_name} 
                     </Typography>
                     {this.renderForm()}
                     {this.renderSnackBar()}

@@ -11,15 +11,7 @@ import Card, { CardContent } from 'material-ui/Card';
 import Divider from 'material-ui/Divider';
 import ExpandMoreIcon from 'material-ui-icons/ExpandMore';
 import {LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend} from 'recharts';
-const data = [
-      {name: '1', pv: 2400,},
-      {name: '2', pv: 1398,},
-      {name: '3', pv: 9800,},
-      {name: '4', pv: 3908,},
-      {name: '5', pv: 4800,},
-      {name: '6', pv: 3800,},
-      {name: '7', pv: 4300,},
-];
+
 const styles = theme => ({
     root: {
         flexGrow: 1,
