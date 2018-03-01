@@ -29,7 +29,30 @@ class PlayerProfile extends React.Component {
       this.state = {
           checkedBorrowing: false,
           borrowing: 0,
-          endSession: false
+          endSession: false,
+          open: false,
+          snackbarMessage: ''
+      };
+      this.renderSnackBar = () => {
+        return(
+            <Snackbar
+                anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'left',
+                }}
+                onClose={this.handleClose}
+                open={this.state.open}
+                
+                autoHideDuration={6000}
+                SnackbarContentProps={{
+                    'aria-describedby': 'message-id',
+                }}
+                message={<span id="message-id">{this.state.snackbarMessage}</span>}
+            />
+        )  
+      }
+      this.handleClose = (event) => {
+        this.setState({ open: false });
       };
       this.roomInfo = this.props.roomInfo;
       this.roundInfo = this.props.roundInfo;
@@ -51,19 +74,40 @@ class PlayerProfile extends React.Component {
             console.log(data.val())
         })
       }else{
-          //the round has been updated
-        this.database.database().ref(this.roomNum).child('on').child('company_'+this.groupNum).once('value').then(function(data){
+          // the round has been updated
+          // remember to updata every thing
+          // update the roundInfo 
+          this.database.database().ref(this.roomNum).child('on').child('round').once('value').then(function(data){
+            that.roundInfo = data.val()
+          })
+          // register a listener to listen round information change
+          this.database.database().ref(this.roomNum).child('on').child('round').on('value',function(data){
+            that.roundInfo = data.val()
+          })
+          // update the companyInfo
+          this.database.database().ref(this.roomNum).child('on').child('company_'+this.groupNum).once('value').then(function(data){
+            that.setState({
+                companyInfo: data.val()
+            })
+          })
+          // register a listener to listen round information change
+          this.database.database().ref(this.roomNum).child('on').child('company_'+this.groupNum).on('value',function(data){
             that.setState({
                 companyInfo: data.val()
             })
             console.log(data.val())
-        })
-        this.database.database().ref(this.roomNum).child('on').child('round').child('round'+this.roundInfo.currentRound).child(this.groupNum).child('submit').once('value').then(function(data){
-            that.setState({
-                submit: data.val()
+          })
+        this.database.database().ref(this.roomNum).child('on').child('round').once('value').then(function(data){
+            that.roundInfo = data.val();
+        }).then(function(){
+            that.database.database().ref(that.roomNum).child('on').child('round').child('round'+that.roundInfo.currentRound).child(that.groupNum).child('submit').once('value').then(function(data){
+                that.setState({
+                    submit: data.val()
+                })
+                console.log(data.val())
             })
-            console.log(data.val())
         })
+        
       }
       this.database.database().ref(this.roomNum).child('on').child('round').child('endSession').once('value').then(function(data){
         that.setState({

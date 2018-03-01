@@ -58,11 +58,21 @@ class Game extends React.Component {
       
       var roomRef = this.database.database().ref(this.roomNum);
       roomRef.child('on').child('roomInfo').once('value').then(function(data){
+        that.setState({
+            roomInfo: data.val()
+        })
+      })
+      roomRef.child('on').child('round').once('value').then(function(data){
+        that.setState({
+            roundInfo: data.val()
+        })
+      })
+      roomRef.child('on').child('roomInfo').on('value',function(data){
           that.setState({
               roomInfo: data.val()
           })
       })
-      roomRef.child('on').child('round').once('value').then(function(data){
+      roomRef.child('on').child('round').on('value', function(data){
           that.setState({
               roundInfo: data.val()
           })

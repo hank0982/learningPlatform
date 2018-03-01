@@ -231,10 +231,6 @@ class GameSetting extends React.Component {
         if(name === 'roundNum'){
             judge(10, 1, 'Please enter number from 1 to 10',);
         }
-        if(name === 'demandSlope'){
-            judge(9999, 1, 'Please enter number from 1 to 9999',);
-
-        }
         if(name === 'demandConstant'){
             judge(9999, 1, 'Please enter number from 1 to 9999',);
         }

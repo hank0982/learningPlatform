@@ -20,20 +20,6 @@ class DisplayTable extends React.Component {
     const { classes } = this.props;
     var dataTypeInCompany = ['companyName','constant','coefficientOne','coefficientTwo','coefficientThree','maximum','minimum','marketInterestRate','assetCash','assetPPE','assetLand','liabilitiesBorrwoing','shareCapital','beg','netIncome']
     var dataTypeName = ['Company Name', 'Constant', 'Coefficient 1', 'Coefficient 2', 'Coefficient 3', 'Maximum', 'Minimum', 'Market Interest Rate', 'Cash', 'Plant, Property and Equipment', 'Land','Borrwoing','Share Capital', 'Beg.', 'Net Income']
-    // var profile = dataTypeInCompany.slice(0,1);
-    // var profileName = dataTypeInCompany.slice(0,1);
-    // var productionCost = dataTypeInCompany.slice(1,5);
-    // var productionCostName = dataTypeName.slice(1,5);
-    // var productionCapacity = dataTypeInCompany.slice(5,8);
-    // var productionCapacityName = dataTypeName.slice(5,8);
-    // var asset = dataTypeInCompany.slice(8,11);
-    // var assetName = dataTypeName.slice(8,11);
-    // var liabilities = dataTypeInCompany.slice(11,12);
-    // var liabilitiesName = dataTypeName.slice(11,12);
-    // var equity = dataTypeInCompany.slice(12,13);
-    // var equityName = dataTypeName.slice(12,13);
-    // var retainedEarnings = dataTypeInCompany.slice(13,14);
-    // var beg
     if(this.numberOfCompany == 0){
         return null
     }else{

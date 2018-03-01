@@ -45,60 +45,25 @@ class EndGame extends React.Component {
             companyInfo: data.val()
         })
       })
-    //     },function(){
-    //         that.rounds = {}
-    //         that.eachRoundValue = [];
-    //         for(var k = 1; k <= parseInt(that.roomInfo.firmNum); k++){
-    //             that.rounds[k] = [];
-    //         }
-    //         that.pricePerRounds = [];
-    //         that.unitCostPerRounds = [];
-    //         that.revenuePerRounds = [];
-    //         that.profitPerRounds = [];
-    //         var coefficientOne = parseFloat(that.state.companyInfo.coefficientOne);
-    //         var coefficientTwo = parseFloat(that.state.companyInfo.coefficientTwo);
-    //         var coefficientThree = parseFloat(that.state.companyInfo.coefficientThree);
-    //         var constant = parseFloat(that.state.companyInfo.constant);
-    //         for (var i = 1; i <= that.roundInfo.currentRound; i ++){
-    //             var quantityOfThisCompany = that.roundInfo['round'+i][that.groupNum].quantityProduction
-    //             var roundSumQuantity = 0;
-    //             for(var k = 1; k <= parseInt(that.roomInfo.firmNum); k++){
-    //                 var quantity = parseInt(that.roundInfo['round'+i][k.toString()].quantityProduction)
-    //                 roundSumQuantity = roundSumQuantity + quantity;
-    //                 that.rounds[k][i-1] = {
-    //                     name: 'round'+i,
-    //                     quantity: quantity,
-    //                 }
-    //                 that.eachRoundValue[i-1] = {sumQuantity: roundSumQuantity}
-    //             }
-    //             var priceOfUnitsSold = parseFloat(this.roomInfo.constant) - (parseFloat(that.roomInfo.slope) * roundSumQuantity)
-    //             that.pricePerRounds[i-1] = {
-    //                 name: 'round'+i,
-    //                 price: priceOfUnitsSold
-    //             }
-    //             var totalCost = coefficientOne * quantityOfThisCompany + coefficientTwo * quantityOfThisCompany *quantityOfThisCompany + coefficientThree * quantityOfThisCompany *quantityOfThisCompany *quantityOfThisCompany + constant
-    //             that.unitCostPerRounds[i-1] = {
-    //                 name: 'round'+i,
-    //                 unitCost: totalCost / quantityOfThisCompany
-    //             }
-    //             that.revenuePerRounds[i-1] = {
-    //                 name: 'round'+i,
-    //                 revenue: priceOfUnitsSold * quantityOfThisCompany
-    //             }
-    //             that.profitPerRounds[i-1] = {
-    //                 name: 'round'+i,
-    //                 profit: priceOfUnitsSold * quantityOfThisCompany - totalCost
-    //             }
-    //         }
-            
-    //     })
-    //   })
+      this.database.database().ref(this.roomNum).child('on').child('company_'+this.groupNum).on('value',function(data){
+        that.setState({
+            companyInfo: data.val()
+        })
+      }) 
+    
       that.pricePerRounds = [];
       that.unitCostPerRounds = [];
       that.revenuePerRounds = [];
       that.profitPerRounds = [];
       that.profitPerCompany = [];
+      that.accumprofitPerCompany = [];
       that.rounds = [];
+      for(var u = 1; u<= parseInt(that.roomInfo.firmNum); u++){
+        that.accumprofitPerCompany[u-1] = {
+            name: 'Firm'+u,
+            profit: 0
+        }
+      }
       for(var k = 1; k <= parseInt(that.roomInfo.firmNum); k++){
           that.rounds[k-1] = []
       }
@@ -106,10 +71,12 @@ class EndGame extends React.Component {
         that.setState({
             informationOfEachRound:data.val()
         },function(){
+            
             for(var i = 1; i <= data.val().currentRound; i++){
+                
                 for(var t = 1; t<= parseInt(that.roomInfo.firmNum); t++){
                     that.rounds[t-1][i-1] = {
-                        name: 'round'+i,
+                        name: i,
                         quantity: parseInt(that.state.informationOfEachRound['round'+i][t].quantityProduction)
                     }
                     if(i == data.val().currentRound){
@@ -118,23 +85,27 @@ class EndGame extends React.Component {
                             profit: parseFloat(that.state.informationOfEachRound['round'+i][t].profit)
                         }
                     }
+                    console.log('this is company '+t+'accumprofit is '+that.accumprofitPerCompany[t-1].profit)
+                    that.accumprofitPerCompany[t-1].profit = that.accumprofitPerCompany[t-1].profit + parseFloat(that.state.informationOfEachRound['round'+i][t].profit)
+                
                 }
                 that.pricePerRounds[i-1] = {
-                    name: 'round'+i,
+                    name: i,
                     price: that.state.informationOfEachRound['round'+i].price
                 }
                 that.unitCostPerRounds[i-1] = {
-                    name: 'round'+i,
+                    name: i,
                     unitCost: that.state.informationOfEachRound['round'+i][that.groupNum].unitCost
                 }
                 that.revenuePerRounds[i-1] = {
-                    name: 'round'+1,
+                    name: i,
                     revenue: that.state.informationOfEachRound['round'+i][that.groupNum].revenue
                 } 
                 that.profitPerRounds[i-1] = {
-                    name: 'round'+1,
-                    profit: that.state.informationOfEachRound['round'+1][that.groupNum].profit
+                    name: i,
+                    profit: that.state.informationOfEachRound['round'+i][that.groupNum].profit
                 }
+                
             }
         })
         that.setState({
@@ -148,6 +119,8 @@ class EndGame extends React.Component {
     const { classes } = this.props;
     if(this.state.companyInfo && this.state.ready){
         var companyInfo = this.state.companyInfo;
+        var totalAsset = parseFloat(companyInfo.assetCash) + parseFloat(companyInfo.assetLand) + parseFloat(companyInfo.assetPPE)
+        var totalEquity = parseFloat(companyInfo.shareCapital) + parseFloat(companyInfo.beg) + parseFloat(companyInfo.netIncome)
         return (
         <div>
             <Typography type="display1" gutterbottom>Business Operation Analysis: {companyInfo.companyName}</Typography>
@@ -234,19 +207,19 @@ class EndGame extends React.Component {
                         <TableBody>
                             <TableRow>
                             <TableCell>Cash</TableCell>
-                            <TableCell>100</TableCell>
+                            <TableCell>{companyInfo.assetCash}</TableCell>
                             </TableRow>
                             <TableRow>
                             <TableCell>Plant, Property and Equipment</TableCell>
-                            <TableCell>100</TableCell>
+                            <TableCell>{companyInfo.assetPPE}</TableCell>
                             </TableRow>
                             <TableRow>
                             <TableCell>Land</TableCell>
-                            <TableCell>100</TableCell>
+                            <TableCell>{companyInfo.assetLand}</TableCell>
                             </TableRow>
                             <TableRow>
                             <TableCell>Total Asset</TableCell>
-                            <TableCell>100</TableCell>
+                            <TableCell>{totalAsset}</TableCell>
                             </TableRow>
                         </TableBody>
                         </Table>
@@ -263,11 +236,11 @@ class EndGame extends React.Component {
                         <TableBody>
                             <TableRow>
                             <TableCell>Borrowing</TableCell>
-                            <TableCell>100</TableCell>
+                            <TableCell>{companyInfo.liabilitiesBorrwoing}</TableCell>
                             </TableRow>
                             <TableRow>
                             <TableCell>Total Liabilities</TableCell>
-                            <TableCell>100</TableCell>
+                            <TableCell>{companyInfo.liabilitiesBorrwoing}</TableCell>
                             </TableRow>
                         </TableBody>
                         </Table>
@@ -284,26 +257,26 @@ class EndGame extends React.Component {
                         <TableBody>
                             <TableRow>
                             <TableCell>Share Capital</TableCell>
-                            <TableCell>100</TableCell>
+                            <TableCell>{companyInfo.shareCapital}</TableCell>
                             </TableRow>
                             <TableRow>
                                 <TableCell>Retained Earnings</TableCell>
                             </TableRow>
                             <TableRow>
                             <TableCell>Beg.</TableCell>
-                            <TableCell>100</TableCell>
+                            <TableCell>{companyInfo.beg}</TableCell>
                             </TableRow>
                             <TableRow>
                             <TableCell>Net income</TableCell>
-                            <TableCell>100</TableCell>
+                            <TableCell>{companyInfo.netIncome}</TableCell>
                             </TableRow>
                             <TableRow>
                             <TableCell>Total Retained Earnings</TableCell>
-                            <TableCell>100</TableCell>
+                            <TableCell>{parseFloat(companyInfo.beg) + parseFloat(companyInfo.netIncome)}</TableCell>
                             </TableRow>
                             <TableRow>
                             <TableCell>Total Equity</TableCell>
-                            <TableCell>100</TableCell>
+                            <TableCell>{totalEquity}</TableCell>
                             </TableRow>
                         </TableBody>
                         </Table>
@@ -328,7 +301,24 @@ class EndGame extends React.Component {
                     </Grid>
                     </ExpansionPanelDetails>   
                 </ExpansionPanel>
+                <Typography type = "headline"> Cumulative Profit  </Typography>
+                <ExpansionPanel className={classes.paper}>
+                    <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+                        <Typography className={classes.heading}>Profit of Each Firm</Typography>
+                    </ExpansionPanelSummary>
+                    <ExpansionPanelDetails> 
+                    <Grid container alignItems = 'center' justify = 'flex-start' direction = 'row'>
+                    <BarChart width={400} height={250} data={that.accumprofitPerCompany}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <Tooltip />
+                    <Bar dataKey="profit" fill="#8884d8" />
+                    </BarChart>
+                    </Grid>
+                    </ExpansionPanelDetails>   
+                </ExpansionPanel>
                 </Grid>
+                
             </Grid>
         </div>
         )

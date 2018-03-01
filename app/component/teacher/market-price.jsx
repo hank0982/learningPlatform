@@ -43,40 +43,77 @@ const styles = theme => ({
 class MarketPrice extends React.Component {  
   constructor(props){
       super(props);
+      let that = this;
+      this.state = {
+        display: false
+      }
       var database = this.props.database;
-     
+      var roomNum = this.props.roomNum;
+      this.pricePerRound = []
+      database.database().ref(roomNum).child('on').child('round').once('value').then(function(data){
+        that.setState({
+          roundInfo: data.val()
+        },function(){
+          let roundInfo = that.state.roundInfo;
+          for(var i = 1; i <= roundInfo.currentRound; i ++){
+            that.pricePerRound[i-1] = {
+              name: 'round'+i,
+              price: roundInfo['round'+i].price
+            }
+          }
+          that.setState({
+            display:true
+          })
+        })
+      })
   }
   render() { 
     const { classes } = this.props;
-    return (
+    if(this.state.display){
+      return (
             
-            <Grid item xs = {10}>
-            <ExpansionPanel>
-                <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
-                <Typography className={classes.heading}>Graph</Typography>
-                </ExpansionPanelSummary>
-                <ExpansionPanelDetails> 
-                  <div className={classes.column, classes.helper}>
-                      <Typography type="headline">
-                      Price<br />
-                      </Typography>
-                      <Typography type="body1">
-                      100
-                      </Typography>
-                  </div>
-                  <LineChart width={600} height={125} data={data}
-                  margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Line type="monotone" dataKey="pv" stroke="#8884d8" />
-                  </LineChart>
-                </ExpansionPanelDetails>      
-            </ExpansionPanel>
-            </Grid>
-    )
+        <Grid item xs = {10}>
+        <ExpansionPanel>
+            <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography className={classes.heading}>Graph</Typography>
+            </ExpansionPanelSummary>
+            <ExpansionPanelDetails> 
+              <div className={classes.column, classes.helper}>
+                  <Typography type="headline">
+                  Price<br />
+                  </Typography>
+                  <Typography type="body1">
+                  {this.pricePerRound[this.state.roundInfo.currentRound-1].price}
+                  </Typography>
+              </div>
+              <LineChart width={1000} height={300} data={this.pricePerRound}
+              margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Line type="monotone" dataKey="price" stroke="#8884d8" />
+              </LineChart>
+            </ExpansionPanelDetails>      
+        </ExpansionPanel>
+        </Grid>
+      )
+    }else{
+      return(
+        <Grid item xs = {10}>
+        <ExpansionPanel>
+            <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography className={classes.heading}>Graph</Typography>
+            </ExpansionPanelSummary>
+            <ExpansionPanelDetails> 
+              Please Wait
+            </ExpansionPanelDetails>      
+        </ExpansionPanel>
+        </Grid>
+      )
+    }
+    
   }
 }
 MarketPrice.propTypes = {

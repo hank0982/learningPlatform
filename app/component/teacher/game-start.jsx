@@ -90,10 +90,12 @@ class TeacherGameStart extends React.Component {
   }
   calculateRoundValue(){
       let that = this;
+      console.log(this.state.currentRound)
       return this.database.database().ref(this.roomNum+'/on/round/round'+this.state.currentRound).once('value').then(function(data){
         var roundInfo = data.val();
         var totalQuantityInThisRound = 0;
         var totalCostArray = [];
+        console.log(roundInfo);
         for(var i = 1; i<=parseInt(that.state.startInfo.roomInfo.firmNum);i++){
             var companyQuantity = parseInt(roundInfo[i].quantityProduction);
             totalQuantityInThisRound = totalQuantityInThisRound + companyQuantity;
@@ -109,8 +111,18 @@ class TeacherGameStart extends React.Component {
         var price = parseFloat(that.state.startInfo.roomInfo.constant) - parseFloat(that.state.startInfo.roomInfo.slope) * totalQuantityInThisRound
         that.database.database().ref(that.roomNum+'/on/round/round'+that.state.currentRound).child('price').set(price);
         for(var i = 1; i<=parseInt(that.state.startInfo.roomInfo.firmNum);i++){
+            var profit = price * companyQuantity - totalCostArray[i-1];
             that.database.database().ref(that.roomNum+'/on/round/round'+that.state.currentRound).child(i).child('revenue').set(price * companyQuantity);
-            that.database.database().ref(that.roomNum+'/on/round/round'+that.state.currentRound).child(i).child('profit').set(price * companyQuantity - totalCostArray[i-1]);
+            that.database.database().ref(that.roomNum+'/on/round/round'+that.state.currentRound).child(i).child('profit').set(profit);
+            var nowCash = parseFloat(that.state.startInfo['company_'+i].assetCash) + profit
+            that.database.database().ref(that.roomNum+'/on/company_'+i).child('assetCash').set(nowCash)
+            if(roundInfo[i].isBorrowing){
+                var nowBorrowing = parseFloat(roundInfo[i].numBorrowing) + parseFloat(that.state.startInfo['company_'+i].liabilitiesBorrwoing)
+                that.database.database().ref(that.roomNum+'/on/company_'+i).child('liabilitiesBorrwoing').set(nowBorrowing)
+            }
+            var newBeg = parseFloat(that.state.startInfo['company_'+i].netIncome) + parseFloat(that.state.startInfo['company_'+i].beg); 
+            that.database.database().ref(that.roomNum+'/on/company_'+i).child('beg').set(newBeg)
+            that.database.database().ref(that.roomNum+'/on/company_'+i).child('netIncome').set(profit)
         }
       })
   }
