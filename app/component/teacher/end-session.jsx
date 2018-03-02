@@ -8,6 +8,7 @@ import ProductionQuantity from './production-quantity'
 import { querystring } from '@firebase/util';
 import Button from 'material-ui/Button'
 import Profit from './profit'
+import AccumProfit from './accumulateProfit'
 const styles = theme => ({
     root: {
         flexGrow: 1,
@@ -65,7 +66,7 @@ class EndSession extends React.Component {
             <Grid item xs = {10} style={{marginTop:10}}>
                 <Typography type="headline" gutterBottom>Profit of Each Firms (Accumulation)</Typography>
             </Grid> 
-            <ProductionQuantity roomNum = {this.roomNum} database = {this.database}/>
+            <AccumProfit roomNum = {this.roomNum} database = {this.database}/>
             <Grid item xs = {10} style={{marginTop:10}}>
             <Button raised color="primary" className={classes.fullWidthButton} onClick = {this.nextRound.bind(this)} type="button">
             Start next round

@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import AppBar from 'material-ui/AppBar';
 import Typography from 'material-ui/Typography';
 import Toolbar from 'material-ui/Toolbar';
-
+import config from '../config'
 const styles = {
     root: {
       width: '100%',
@@ -25,7 +25,7 @@ class ApplicationBar extends React.Component {
   renderBarTitle(type){
       switch(type){
           case 'Home':
-            return 'Business Strategy Stimulation System'
+            return config.app_name
           case 'GameSetting':
             return 'Game Setting'
           case 'teacher_gamestart':

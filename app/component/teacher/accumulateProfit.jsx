@@ -3,6 +3,7 @@ import { withStyles } from 'material-ui/styles';
 import PropTypes from 'prop-types';
 import Typography from 'material-ui/Typography';
 import Grid from 'material-ui/Grid';
+import Paper from 'material-ui/Paper';
 import ExpansionPanel, {
   ExpansionPanelSummary,
   ExpansionPanelDetails,
@@ -10,11 +11,12 @@ import ExpansionPanel, {
 import Card, { CardContent } from 'material-ui/Card';
 import Divider from 'material-ui/Divider';
 import ExpandMoreIcon from 'material-ui-icons/ExpandMore';
-import {LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend} from 'recharts';
+import {BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend} from 'recharts';
 
 const styles = theme => ({
     root: {
         flexGrow: 1,
+        padding: theme.spacing.unit * 2,
     },
     flex: {
       flex: 1,
@@ -32,7 +34,7 @@ const styles = theme => ({
     },
   });
   
-class Profit extends React.Component {  
+class AccumProfit extends React.Component {  
   constructor(props){
       super(props);
       var database = this.props.database;
@@ -46,17 +48,14 @@ class Profit extends React.Component {
           var roundInfo = data.val();
           database.database().ref(roomNum).child('on').child('roomInfo').once('value').then(function(snap){
             var roomInfo = snap.val();
-            for(var k = 1; k <= roundInfo.currentRound; k++){
-                that.data[k-1] = {
-                    name: k
-                }
+            for(var g = 1; g <= parseInt(roomInfo.firmNum); g++){
+                that.data[g-1] = 0
             }
             for(var i = 1; i <= roundInfo.currentRound;i++){
                 for(var u = 1; u <= parseInt(roomInfo.firmNum); u++){
-                    that.data[i-1][u] = roundInfo['round'+i][u].profit
+                    that.data[u-1] = roundInfo['round'+i][u].profit + that.data[u-1]
                 }
             }
-            console.log(that.data)
             that.setState({
                 display:true
             })
@@ -64,15 +63,15 @@ class Profit extends React.Component {
           
       })
   }
-  renderLineChart(){
-    return <BarChart width={600} height={300} data={this.quantityStack} maxBarSize = {35}
+  renderBarChart() {
+    return <BarChart width={600} height={300} data={this.data} maxBarSize = {35}
     margin={{top: 20, right: 30, left: 20, bottom: 5}} layout="vertical">
         <XAxis type="number"/>
         <YAxis type="category" dataKey="name"/>
         <CartesianGrid strokeDasharray="3 3"/>
         <Tooltip/>
         <Legend />
-    
+        <Bar barsize = {10} dataKey={i} stackId="a" fill={colorPlate[i%(colorPlate.length)]} />
         </BarChart>
   }
   render() { 
@@ -85,16 +84,22 @@ class Profit extends React.Component {
             <Typography className={classes.heading}>Graph</Typography>
             </ExpansionPanelSummary>
             <ExpansionPanelDetails> 
-            <LineChart width={600} height={300} data={this.data}
-            margin={{top: 5, right: 30, left: 20, bottom: 5}}>
-            <XAxis dataKey="name"/>
-            <YAxis/>
-            <CartesianGrid strokeDasharray="3 3"/>
-            <Tooltip/>
-            <Legend />
-            <Line type="monotone" dataKey="1" stroke="#8884d8" activeDot={{r: 8}}/>
-            <Line type="monotone" dataKey="2" stroke="#82ca9d" />
-            </LineChart>
+            <Grid spacing = {16}  justify="flex-start" container>
+           {
+               this.data.map(function(ele, i){
+                   return <Grid item>
+                   <Paper className={classes.root} elevation={4}>
+                        <Typography type="headline" component="h3">
+                        {'Firm '+i}
+                        </Typography>
+                        <Typography component="p">
+                        {ele}
+                        </Typography>
+                    </Paper></Grid>
+               })
+           }
+           {this.renderBarChart()}
+           </Grid>
             </ExpansionPanelDetails>
             
         </ExpansionPanel>
@@ -118,7 +123,7 @@ class Profit extends React.Component {
    
   }
 }
-Profit.propTypes = {
+AccumProfit.propTypes = {
     classes: PropTypes.object.isRequired,
   };
-export default withStyles(styles)(Profit)
+export default withStyles(styles)(AccumProfit)

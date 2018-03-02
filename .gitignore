@@ -1,6 +1,6 @@
 key.js
 app/credential/
-public/bundle.js
+bundle.js
 ngrok
 # Logs
 logs

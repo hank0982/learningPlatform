@@ -60,19 +60,40 @@ class PlayerProfile extends React.Component {
       this.database = this.props.database;
       this.roomNum = this.roomInfo.roomNum; 
       if(this.roundInfo.currentRound == 1){
-        // get the initial data from firebase
-        this.database.database().ref(this.roomNum).child('on').child('company_'+this.groupNum).once('value').then(function(data){
+         // the round has been updated
+          // remember to updata every thing
+          // update the roundInfo 
+          this.database.database().ref(this.roomNum).child('on').child('round').once('value').then(function(data){
+            that.roundInfo = data.val()
+          })
+          // register a listener to listen round information change
+          this.database.database().ref(this.roomNum).child('on').child('round').on('value',function(data){
+            that.roundInfo = data.val()
+          })
+          // update the companyInfo
+          this.database.database().ref(this.roomNum).child('on').child('company_'+this.groupNum).once('value').then(function(data){
+            that.setState({
+                companyInfo: data.val()
+            })
+          })
+          // register a listener to listen round information change
+          this.database.database().ref(this.roomNum).child('on').child('company_'+this.groupNum).on('value',function(data){
             that.setState({
                 companyInfo: data.val()
             })
             console.log(data.val())
-        })
-        this.database.database().ref(this.roomNum).child('on').child('round').child('round1').child(this.groupNum).child('submit').once('value').then(function(data){
-            that.setState({
-                submit: data.val()
+          })
+        this.database.database().ref(this.roomNum).child('on').child('round').once('value').then(function(data){
+            that.roundInfo = data.val();
+        }).then(function(){
+            that.database.database().ref(that.roomNum).child('on').child('round').child('round'+that.roundInfo.currentRound).child(that.groupNum).child('submit').once('value').then(function(data){
+                that.setState({
+                    submit: data.val()
+                })
+                console.log(data.val())
             })
-            console.log(data.val())
         })
+        
       }else{
           // the round has been updated
           // remember to updata every thing
