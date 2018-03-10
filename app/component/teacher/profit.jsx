@@ -64,17 +64,7 @@ class Profit extends React.Component {
           
       })
   }
-  renderLineChart(){
-    return <BarChart width={600} height={300} data={this.quantityStack} maxBarSize = {35}
-    margin={{top: 20, right: 30, left: 20, bottom: 5}} layout="vertical">
-        <XAxis type="number"/>
-        <YAxis type="category" dataKey="name"/>
-        <CartesianGrid strokeDasharray="3 3"/>
-        <Tooltip/>
-        <Legend />
-    
-        </BarChart>
-  }
+ 
   render() { 
     const { classes } = this.props;
     if(this.state.display){
@@ -85,7 +75,8 @@ class Profit extends React.Component {
             <Typography className={classes.heading}>Graph</Typography>
             </ExpansionPanelSummary>
             <ExpansionPanelDetails> 
-            <LineChart width={600} height={300} data={this.data}
+            <Grid item xs = {12}>
+            <LineChart width={1000} height={300} data={this.data}
             margin={{top: 5, right: 30, left: 20, bottom: 5}}>
             <XAxis dataKey="name"/>
             <YAxis/>
@@ -95,6 +86,7 @@ class Profit extends React.Component {
             <Line type="monotone" dataKey="1" stroke="#8884d8" activeDot={{r: 8}}/>
             <Line type="monotone" dataKey="2" stroke="#82ca9d" />
             </LineChart>
+            </Grid>
             </ExpansionPanelDetails>
             
         </ExpansionPanel>

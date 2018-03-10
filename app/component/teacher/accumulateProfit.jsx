@@ -64,14 +64,22 @@ class AccumProfit extends React.Component {
       })
   }
   renderBarChart() {
-    return <BarChart width={600} height={300} data={this.data} maxBarSize = {35}
-    margin={{top: 20, right: 30, left: 20, bottom: 5}} layout="vertical">
-        <XAxis type="number"/>
-        <YAxis type="category" dataKey="name"/>
-        <CartesianGrid strokeDasharray="3 3"/>
-        <Tooltip/>
+    var forRender = []
+    this.data.map(function(data, i){
+        console.log(i)
+        forRender[i] = {
+            name: 'Firm'+(i+1),
+            profit: data
+        }
+    })
+    console.log(forRender)
+    return <BarChart barSize = {40} width={1000} height={250} data={forRender}  margin={{top: 5, right: 30, left: 20, bottom: 5}}>
+        <XAxis dataKey="name" />
+        <YAxis />
+        <CartesianGrid strokeDasharray="3 3" />
+        <Tooltip />
         <Legend />
-        <Bar barsize = {10} dataKey={i} stackId="a" fill={colorPlate[i%(colorPlate.length)]} />
+        <Bar  dataKey="profit" fill="#8884d8" />
         </BarChart>
   }
   render() { 
@@ -98,7 +106,9 @@ class AccumProfit extends React.Component {
                     </Paper></Grid>
                })
            }
+           <Grid item xs = {12}>
            {this.renderBarChart()}
+           </Grid>
            </Grid>
             </ExpansionPanelDetails>
             

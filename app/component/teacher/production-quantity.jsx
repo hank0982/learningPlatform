@@ -11,10 +11,13 @@ import Card, { CardContent } from 'material-ui/Card';
 import Divider from 'material-ui/Divider';
 import ExpandMoreIcon from 'material-ui-icons/ExpandMore';
 import {BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend} from 'recharts';
+import Paper from 'material-ui/Paper';
 
 const styles = theme => ({
     root: {
         flexGrow: 1,
+        padding: theme.spacing.unit * 2,
+
     },
     flex: {
       flex: 1,
@@ -77,19 +80,20 @@ class ProductionQuantity extends React.Component {
       }) 
   }
   renderQuantity(){
+    var {classes} = this.props
     let roomInfo = this.state.roomInfo;
     var renderDOM = []
     for(var i = 1; i <=parseInt(roomInfo.firmNum); i++){
       var quantity = this.quantityPerCompany[i-1].quantity
       renderDOM.push(
-        <div>
-          <Typography type="headline">
-            Firm {i} Quantity<br />
-          </Typography>
-          <Typography type="body1">
-            {quantity}<br/>
-          </Typography>
-        </div>
+        <Grid item><Paper className={classes.root} elevation={4}>
+        <Typography type="headline" component="h3">
+        Firm {i} Quantity
+        </Typography>
+        <Typography component="p">
+        {quantity}
+        </Typography>
+      </Paper></Grid>
       )
     }
     return renderDOM
@@ -97,9 +101,13 @@ class ProductionQuantity extends React.Component {
   renderBarLineChart(){
     let roundInfo = this.state.roundInfo;
     var renderDOM = []
-    let colorPlate = ['#FF44AA','#FF3333','#FF7744','#FFAA33','#FFCC22','#FFFF33','#CCFF33','#99FF33']
+    let colorPlate = ['#FF44AA','#CCFF33','#FF7744','#FFAA33','#FFCC22','#FFFF33','#CCFF33','#99FF33']
     for(var i = 1; i <= parseInt(roundInfo.currentRound); i++){
-      renderDOM.push(<Bar barsize = {10} dataKey={i} stackId="a" fill={colorPlate[i%(colorPlate.length)]} />)
+      if(i == parseInt(roundInfo.currentRound)){
+        renderDOM.push(<Bar barsize = {10} dataKey={i} stackId="a" fill={colorPlate[1]} />)
+      }else{
+        renderDOM.push(<Bar barsize = {10} dataKey={i} stackId="a" fill={colorPlate[0]} />)
+      }
     }
     return renderDOM
   }
@@ -113,10 +121,10 @@ class ProductionQuantity extends React.Component {
             <Typography className={classes.heading}>Graph</Typography>
             </ExpansionPanelSummary>
             <ExpansionPanelDetails> 
-            <div className={classes.column, classes.helper}>
+            <Grid spacing = {16}  justify="flex-start" container>
                 {this.renderQuantity.bind(this)()}
-            </div>
-            <BarChart width={600} height={300} data={this.quantityStack} maxBarSize = {35}
+            <Grid item xs = {12}>
+            <BarChart width={1000} height={300} data={this.quantityStack} maxBarSize = {35}
                   margin={{top: 20, right: 30, left: 20, bottom: 5}} layout="vertical">
             <XAxis type="number"/>
             <YAxis type="category" dataKey="name"/>
@@ -125,6 +133,9 @@ class ProductionQuantity extends React.Component {
             <Legend />
             {this.renderBarLineChart.bind(this)()}
             </BarChart>
+            </Grid>
+            </Grid>
+
             </ExpansionPanelDetails>
             
         </ExpansionPanel>

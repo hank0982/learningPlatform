@@ -11,10 +11,13 @@ import Card, { CardContent } from 'material-ui/Card';
 import Divider from 'material-ui/Divider';
 import ExpandMoreIcon from 'material-ui-icons/ExpandMore';
 import {LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend} from 'recharts';
+import Paper from 'material-ui/Paper';
 
 const styles = theme => ({
     root: {
         flexGrow: 1,
+        padding: theme.spacing.unit * 2,
+
     },
     flex: {
       flex: 1,
@@ -70,14 +73,17 @@ class MarketPrice extends React.Component {
             <Typography className={classes.heading}>Graph</Typography>
             </ExpansionPanelSummary>
             <ExpansionPanelDetails> 
-              <div className={classes.column, classes.helper}>
-                  <Typography type="headline">
-                  Price<br />
-                  </Typography>
-                  <Typography type="body1">
-                  {this.pricePerRound[this.state.roundInfo.currentRound-1].price}
-                  </Typography>
-              </div>
+            <Grid spacing = {16}  justify="flex-start" container>
+              <Grid item>
+                   <Paper className={classes.root} elevation={4}>
+                        <Typography type="headline" component="h3">
+                        Price
+                        </Typography>
+                        <Typography component="p">
+                        {this.pricePerRound[this.state.roundInfo.currentRound-1].price}
+                        </Typography>
+              </Paper></Grid>
+              <Grid item xs = {12}> 
               <LineChart width={1000} height={300} data={this.pricePerRound}
               margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -87,6 +93,8 @@ class MarketPrice extends React.Component {
               <Legend />
               <Line type="monotone" dataKey="price" stroke="#8884d8" />
               </LineChart>
+              </Grid>
+              </Grid>
             </ExpansionPanelDetails>      
         </ExpansionPanel>
         </Grid>

@@ -89,10 +89,18 @@ class EndGame extends React.Component {
                     that.accumprofitPerCompany[t-1].profit = that.accumprofitPerCompany[t-1].profit + parseFloat(that.state.informationOfEachRound['round'+i][t].profit)
                 
                 }
-                that.pricePerRounds[i-1] = {
-                    name: i,
-                    price: that.state.informationOfEachRound['round'+i].price
-                }
+                if(that.roomInfo.marketType == 'monoply'){
+                    console.log('monoply')
+                    that.pricePerRounds[i-1] = {
+                        name: i,
+                        price: that.state.informationOfEachRound['round'+i][that.groupNum].price
+                    }
+                }else{
+                    that.pricePerRounds[i-1] = {
+                        name: i,
+                        price: that.state.informationOfEachRound['round'+i].price
+                    }
+                }    
                 that.unitCostPerRounds[i-1] = {
                     name: i,
                     unitCost: that.state.informationOfEachRound['round'+i][that.groupNum].unitCost
@@ -123,7 +131,7 @@ class EndGame extends React.Component {
         var totalEquity = parseFloat(companyInfo.shareCapital) + parseFloat(companyInfo.beg) + parseFloat(companyInfo.netIncome)
         return (
         <div>
-            <Typography type="display1" gutterbottom>Business Operation Analysis: {companyInfo.companyName}</Typography>
+            <Typography type="display1" >Business Operation Analysis: {companyInfo.companyName}</Typography>
             <Typography type = "headline"> Important Factors </Typography>
             <ExpansionPanel className = {classes.paper}>
                 <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
@@ -292,7 +300,7 @@ class EndGame extends React.Component {
                     </ExpansionPanelSummary>
                     <ExpansionPanelDetails> 
                     <Grid container alignItems = 'center' justify = 'flex-start' direction = 'row'>
-                    <BarChart width={400} height={250} data={that.profitPerCompany}>
+                    <BarChart barSize = {35}  width={400} height={250} data={that.profitPerCompany}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" />
                     <Tooltip />
@@ -308,7 +316,7 @@ class EndGame extends React.Component {
                     </ExpansionPanelSummary>
                     <ExpansionPanelDetails> 
                     <Grid container alignItems = 'center' justify = 'flex-start' direction = 'row'>
-                    <BarChart width={400} height={250} data={that.accumprofitPerCompany}>
+                    <BarChart barSize = {35} width={400} height={250} data={that.accumprofitPerCompany}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" />
                     <Tooltip />

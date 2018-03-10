@@ -159,6 +159,12 @@ class GameSetting extends React.Component {
             descriptionOfFirms: this.state.descriptionOfFirms,
             productionDifferentiation: this.state.productionDifferentiation
         }
+        if(roomInfo.marketType == 'stackelberg'){
+            roomInfo = {
+                ...roomInfo,
+                leader: this.state.leader
+            }
+        }
         var transferData = {
             ...companys,
             roomInfo: roomInfo,

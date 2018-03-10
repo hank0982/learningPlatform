@@ -33,7 +33,7 @@ const styles = theme => ({
   });
 class Home extends React.Component{
     constructor(props){
-        super(props);
+        super(props)
         this.state = {
             isStudent: true,
             open: false,
