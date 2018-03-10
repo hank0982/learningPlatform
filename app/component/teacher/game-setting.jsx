@@ -139,6 +139,9 @@ class GameSetting extends React.Component {
                         printerror = true;
                         return;
                     }
+                    // if(type == 'consant' || type == 'coefficientOne' || type == 'coefficientTwo' || type == 'coefficientThree') {
+                    //     company[type] = company[type].tofixed(3);
+                    // }
                 })
             }
 
@@ -148,8 +151,8 @@ class GameSetting extends React.Component {
             firmNum: this.state.firmNum,
             marketType: this.state.marketType,
             roundNum: this.state.roundNum,
-            constant: this.state.demandConstant,
-            slope: this.state.demandSlope,
+            constant: this.state.demandConstant, //
+            slope: this.state.demandSlope, //
             increaseInCapacity: this.state.increaseInCapacity,
             advertisementImplement: this.state.advertisementImplement,
             taxComposition: this.state.taxComposition,
