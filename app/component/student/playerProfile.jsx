@@ -264,16 +264,15 @@ class PlayerProfile extends React.Component {
 
   renderTotalCost() {
     let {companyInfo} = this.state;
-
     return (
-        <Typography style = {{whiteSpace: 'pre'}} type= 'body1' gutterBottom> 
+        <Typography style = {{whiteSpace: 'pre-line'}} type= 'body1' gutterBottom> 
             {companyInfo.constant == 0 ? null : companyInfo.constant}
             {companyInfo.constant == 0 || companyInfo.coefficientOne == 0 ? null : ' + '}
             {companyInfo.coefficientOne == 0 ? null : companyInfo.coefficientOne == 1 ? 'q' : companyInfo.coefficientOne+'q' }
-            {companyInfo.coefficientOne == 0 || companyInfo.coefficientOne == 0 ? null : ' + '}
+            {companyInfo.coefficientOne == 0 || companyInfo.coefficientTwo == 0 ? null : ' + '}
             {companyInfo.coefficientTwo == 0 ? null : companyInfo.coefficientTwo == 1 ? 'q' : companyInfo.coefficientTwo+'q' }{companyInfo.coefficientTwo == 0 ? null : <sup>2</sup>}
             {companyInfo.coefficientTwo == 0 || companyInfo.coefficientThree == 0 ? null : ' + '}
-            {companyInfo.coefficientThree == 0 ? null : companyInfo.coefficientThree == 1 ? ' + q' : ' + '+companyInfo.coefficientThree+'q'}{companyInfo.coefficientThree == 0 ? null : <sup>3</sup>}
+            {companyInfo.coefficientThree == 0 ? null : companyInfo.coefficientThree == 1 ? 'q' : companyInfo.coefficientThree+'q'}{companyInfo.coefficientThree == 0 ? null : <sup>3</sup>}
         </Typography>
     )
   }
@@ -294,7 +293,7 @@ class PlayerProfile extends React.Component {
             <Grid >
                     <Typography type='headline' gutterBottom> Firm Description </Typography>
                     <Paper className={classes.root} elevation={4}>
-                    <Typography style = {{whiteSpace: 'pre'}} type= 'body1' gutterBottom> {companyInfo.companyDescription} </Typography>
+                    <Typography style = {{whiteSpace: 'pre-line'}} type= 'body1' gutterBottom> {companyInfo.companyDescription} </Typography>
                     </Paper>
             </Grid>
             <Typography type='headline' gutterBottom> Balance Sheet </Typography>
@@ -314,7 +313,7 @@ class PlayerProfile extends React.Component {
                     <Typography type = 'title' gutterBottom> Total Cost </Typography>
                     <Paper className={classes.root} elevation={4}>
                     {this.renderTotalCost()}
-                    {/* <Typography style = {{whiteSpace: 'pre'}} type= 'body1' gutterBottom> 
+                    {/* <Typography style = {{whiteSpace: 'pre-line'}} type= 'body1' gutterBottom> 
                         {companyInfo.constant + ' + '+ companyInfo.coefficientOne+'Q + ' +companyInfo.coefficientTwo+'Q'}<sup>2</sup>{' + '+companyInfo.coefficientThree+'Q'}<sup>3</sup>
                     </Typography> */}
                     </Paper>

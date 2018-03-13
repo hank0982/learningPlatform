@@ -10,8 +10,8 @@ import TextField from 'material-ui/TextField';
 import Snackbar from 'material-ui/Snackbar';
 import { Redirect } from 'react-router';
 import { sha256 } from 'js-sha256';
-import ApplcationBar from './AppBar'
-import config from '../config'
+import ApplcationBar from './AppBar';
+import config from '../config';
 const styles = theme => ({
     root: theme.mixins.gutters({
       paddingTop: 16,
