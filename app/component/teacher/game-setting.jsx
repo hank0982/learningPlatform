@@ -601,7 +601,7 @@ class GameSetting extends React.Component {
                                 <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > Additional Settings </Typography>
                                 {
                                     [
-                                        {label: "Increase in Capacity", stateName:'increaseInCapacity'},
+                                        {label: "Technology Development", stateName:'increaseInCapacity'},
                                         {label: "Advertisement Implementation", stateName:'advertisementImplement'},
                                         {label: "Tax Composition", stateName:'taxComposition'},
                                         {label: "Production Differentiation", stateName:'productionDifferentiation'},
