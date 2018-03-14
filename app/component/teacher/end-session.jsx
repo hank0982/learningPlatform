@@ -89,21 +89,21 @@ class EndSession extends React.Component {
                 </Grid> 
                 <MarketPrice roomNum = {this.roomNum} database = {this.database}/>
                 <Grid item xs = {10} style={{marginTop:10}}>
-                    <Typography type="headline" gutterBottom>Production Quantity of Each Firms</Typography>
+                    <Typography type="headline" gutterBottom>Each Firm's Output</Typography>
                 </Grid> 
                 <ProductionQuantity roomNum = {this.roomNum} database = {this.database}/>
                 <Grid item xs = {10} style={{marginTop:10}}>
-                    <Typography type="headline" gutterBottom>Profit of Each Firms (BY ROUND)</Typography>
+                    <Typography type="headline" gutterBottom>Each Firm's Profit (By Round)</Typography>
                 </Grid> 
                 <Profit roomNum = {this.roomNum} database = {this.database}/>
                 <Grid item xs = {10} style={{marginTop:10}}>
-                    <Typography type="headline" gutterBottom>Profit of Each Firms (Accumulation)</Typography>
+                    <Typography type="headline" gutterBottom>Each Firm's Profit (By Accumulation)</Typography>
                 </Grid> 
                 <AccumProfit roomNum = {this.roomNum} database = {this.database}/>
                 <Grid item xs = {10} style={{marginTop:10}}>
                 
                 <Button raised color="primary" className={classes.fullWidthButton} onClick = {this.nextRound.bind(this)} type="button">
-                Start next round
+                Go to Next Round
                 </Button>
                 </Grid> 
             </Grid>

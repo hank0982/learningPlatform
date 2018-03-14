@@ -11,7 +11,7 @@ import ExpansionPanel, {
 import Card, { CardContent } from 'material-ui/Card';
 import Divider from 'material-ui/Divider';
 import ExpandMoreIcon from 'material-ui-icons/ExpandMore';
-import {BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend} from 'recharts';
+import {BarChart, Bar,Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend} from 'recharts';
 
 const styles = theme => ({
     root: {
@@ -73,13 +73,23 @@ class AccumProfit extends React.Component {
         }
     })
     console.log(forRender)
+    var COLORS = ["#03A9F4", "#8BC34A", "#FFEB3B", "#FF9800"];
+
     return <BarChart barSize = {40} width={1000} height={250} data={forRender}  margin={{top: 5, right: 30, left: 20, bottom: 5}}>
         <XAxis dataKey="name" />
         <YAxis />
         <CartesianGrid strokeDasharray="3 3" />
         <Tooltip />
         <Legend />
-        <Bar  dataKey="profit" fill="#8884d8" />
+        
+        <Bar  dataKey="profit" fill="#8884d8" >
+        {
+          	forRender.map((entry, index) => {
+            	const intdex = Number(entry.name.slice(-1));
+            	return <Cell fill={COLORS[intdex-1]} />;
+            })
+          }
+        </Bar>
         </BarChart>
   }
   render() { 
@@ -98,7 +108,7 @@ class AccumProfit extends React.Component {
                    return <Grid item>
                    <Paper className={classes.root} elevation={4}>
                         <Typography type="headline" component="h3">
-                        {'Firm '+i}
+                        {'Firm '+(i+1)}
                         </Typography>
                         <Typography component="p">
                         {ele}

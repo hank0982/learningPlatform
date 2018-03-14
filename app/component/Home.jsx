@@ -12,6 +12,8 @@ import { Redirect } from 'react-router';
 import { sha256 } from 'js-sha256';
 import ApplcationBar from './AppBar';
 import config from '../config';
+import * as colors from 'material-ui/colors';
+
 const styles = theme => ({
     root: theme.mixins.gutters({
       paddingTop: 16,

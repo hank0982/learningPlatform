@@ -375,7 +375,7 @@ class GameSetting extends React.Component {
         let classes = this.classes;
         return (
             <div>
-            <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > Player Profile </Typography>
+            <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > Firm's Profile </Typography>
             <Table className={classes.table} >      
                 <TableBody>
                 {this.renderTableRowFive(1, 'Company Name', 'companyName', 'Company Name',less,null)}
@@ -604,9 +604,9 @@ class GameSetting extends React.Component {
                                 <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > Additional Settings </Typography>
                                 {
                                     [
-                                        {label: "Technology Development", stateName:'increaseInCapacity'},
-                                        {label: "Advertisement Implementation", stateName:'advertisementImplement'},
-                                        {label: "Tax Composition", stateName:'taxComposition'},
+                                        {label: "Production Technology", stateName:'increaseInCapacity'},
+                                        {label: "Advertisement", stateName:'advertisementImplement'},
+                                        {label: "Tax", stateName:'taxComposition'},
                                         {label: "Production Differentiation", stateName:'productionDifferentiation'},
 
                                     ].map(function(data, index){
@@ -641,8 +641,8 @@ class GameSetting extends React.Component {
                             [
                                 {title: 'Game Rules', idLabel: 'gameRule'},
                                 {title: 'Description Of Firms', idLabel: 'descriptionOfFirms'},
-                                {title: 'Market Description', idLabel: 'marketDescription'},
-                                {title: "Goal of Firms", idLabel: 'goalOfFirms'},
+                                {title: 'Model of Market Structure', idLabel: 'marketDescription'},
+                                {title: "Firm's Objective", idLabel: 'goalOfFirms'},
                             ].map(function(data){
                                 return(
                                 <div>
