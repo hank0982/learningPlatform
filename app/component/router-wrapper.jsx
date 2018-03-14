@@ -1,14 +1,16 @@
 import React from 'react';  
-import { Switch, Route } from 'react-router-dom'
+import { Switch, Route } from 'react-router-dom';
 import { withStyles } from 'material-ui/styles';
 import PropTypes from 'prop-types';
 import GameSetting from './teacher/game-setting'
-import Game from './student/game'
-import TeacherGameStart from './teacher/game-start'
-import Home from './Home'
+import Game from './student/game';
+import TeacherGameStart from './teacher/game-start';
+import Home from './Home';
+import About from './about/about';
 import io from "socket.io-client";
-import firebase from 'firebase'
-import config from '../credential/key'
+import firebase from 'firebase';
+import config from '../credential/key';
+
 class RouterWrapper extends React.Component {  
   constructor(props){
       super(props);
@@ -36,6 +38,7 @@ class RouterWrapper extends React.Component {
                 <Route path = '/teacher_gamestart/:id' render = {props => <TeacherGameStart {...this.state} {...props}/>}/>
                 <Route path='/game_setting/:id' render={props =><GameSetting {...this.state} {...props} />}/>
                 <Route path='/student_game/:id' render = {props => <Game {...this.state} {...props}/>}/>
+                <Route path='/abouttt' render = {props => <About {...props}/>}/>
             </Switch>
     )
   }

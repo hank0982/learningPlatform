@@ -53,7 +53,7 @@ class Game extends React.Component {
       this.database = this.props.database;
       this.socket = this.props.socket;
       this.state = {
-          tab: 0
+          tab: 0,
       }
       
       var roomRef = this.database.database().ref(this.roomNum);
@@ -107,7 +107,7 @@ class Game extends React.Component {
             return <MarketIntro roomInfo = {roomInfo} roundInfo = {roundInfo}/>
       }else if(value == 2){
            if(roomInfo && roundInfo && groupNum){
-            return <PlayerProfile database = {this.database} roomInfo = {roomInfo} roundInfo = {roundInfo} groupNum = {groupNum}/>
+            return <PlayerProfile database = {this.database} roomInfo = {roomInfo} roundInfo = {roundInfo} groupNum = {groupNum} windowWidth = {this.props.windowWidth} windowHeight = {this.props.windowHeight}/>
            }
       }
   };

@@ -91,7 +91,7 @@ class MarketPrice extends React.Component {
               <YAxis />
               <Tooltip />
               <Legend />
-              <Line type="monotone" dataKey="price" stroke="#8884d8" />
+              <Line type="linear" dataKey="price" stroke="#8884d8" />
               </LineChart>
               </Grid>
               </Grid>

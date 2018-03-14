@@ -7,11 +7,11 @@ import Toolbar from 'material-ui/Toolbar';
 
 const styles = theme => ({
   root: theme.mixins.gutters({
-        paddingTop: 8,
-        paddingBottom: 8,
-        marginTop: theme.spacing.unit * 2,
-        overflowX: 'auto',
-    }),
+    paddingTop: 16,
+    paddingBottom: 16,
+    marginTop: theme.spacing.unit * 3,
+    marginBottom: theme.spacing.unit * 3,
+  }),
 });
 class Introduction extends React.Component {  
   constructor(props){
@@ -25,7 +25,10 @@ class Introduction extends React.Component {
         <div>
             <Typography type="display1" gutterBottom>Introduction and Rules</Typography>
             <Typography type = "headline" gutterBottom> Game Rules </Typography>
-            <Typography style = {{whiteSpace: 'pre'}}type = 'body1' gutterBottom> {this.props.roomInfo.gameRule} </Typography>
+            <Paper className={classes.root} elevation={4}>
+                <Typography style = {{whiteSpace: 'pre-line'}}type = 'body1' gutterBottom> {this.props.roomInfo.gameRule} </Typography>
+            </Paper>
+            
         </div>
         )
     }

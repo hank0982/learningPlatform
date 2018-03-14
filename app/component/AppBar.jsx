@@ -25,13 +25,15 @@ class ApplicationBar extends React.Component {
   renderBarTitle(type){
       switch(type){
           case 'Home':
-            return config.app_name
+            return config.app_name;
           case 'GameSetting':
-            return 'Game Setting'
+            return 'Game Setting';
           case 'teacher_gamestart':
-            return 'Game Start'
+            return 'Game Start';
+          case 'about':
+            return 'About us';
           default:
-            return type
+            return type;
       }
   }
   render() { 

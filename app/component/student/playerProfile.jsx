@@ -261,6 +261,22 @@ class PlayerProfile extends React.Component {
             </Paper>
       )
   }
+
+  renderTotalCost() {
+    let {companyInfo} = this.state;
+    return (
+        <Typography style = {{whiteSpace: 'pre-line'}} type= 'body1' gutterBottom> 
+            {companyInfo.constant == 0 ? null : companyInfo.constant}
+            {companyInfo.constant == 0 || companyInfo.coefficientOne == 0 ? null : ' + '}
+            {companyInfo.coefficientOne == 0 ? null : companyInfo.coefficientOne == 1 ? 'q' : companyInfo.coefficientOne+'q' }
+            {companyInfo.coefficientOne == 0 || companyInfo.coefficientTwo == 0 ? null : ' + '}
+            {companyInfo.coefficientTwo == 0 ? null : companyInfo.coefficientTwo == 1 ? 'q' : companyInfo.coefficientTwo+'q' }{companyInfo.coefficientTwo == 0 ? null : <sup>2</sup>}
+            {companyInfo.coefficientTwo == 0 || companyInfo.coefficientThree == 0 ? null : ' + '}
+            {companyInfo.coefficientThree == 0 ? null : companyInfo.coefficientThree == 1 ? 'q' : companyInfo.coefficientThree+'q'}{companyInfo.coefficientThree == 0 ? null : <sup>3</sup>}
+        </Typography>
+    )
+  }
+
   renderUserInput(){
     const { classes } = this.props;
     let {companyInfo} = this.state;
@@ -277,7 +293,7 @@ class PlayerProfile extends React.Component {
             <Grid >
                     <Typography type='headline' gutterBottom> Firm Description </Typography>
                     <Paper className={classes.root} elevation={4}>
-                    <Typography style = {{whiteSpace: 'pre'}} type= 'body1' gutterBottom> {companyInfo.companyDescription} </Typography>
+                    <Typography style = {{whiteSpace: 'pre-line'}} type= 'body1' gutterBottom> {companyInfo.companyDescription} </Typography>
                     </Paper>
             </Grid>
             <Typography type='headline' gutterBottom> Balance Sheet </Typography>
@@ -296,9 +312,10 @@ class PlayerProfile extends React.Component {
                     <Typography type='headline' gutterBottom> Production Cost </Typography>
                     <Typography type = 'title' gutterBottom> Total Cost </Typography>
                     <Paper className={classes.root} elevation={4}>
-                    <Typography style = {{whiteSpace: 'pre'}} type= 'body1' gutterBottom> 
-                    {companyInfo.constant + ' + '+ companyInfo.coefficientOne+'X + ' +companyInfo.coefficientTwo+'X'}<sup>2</sup>{' + '+companyInfo.coefficientThree+'X'}<sup>3</sup>
-                    </Typography>
+                    {this.renderTotalCost()}
+                    {/* <Typography style = {{whiteSpace: 'pre-line'}} type= 'body1' gutterBottom> 
+                        {companyInfo.constant + ' + '+ companyInfo.coefficientOne+'Q + ' +companyInfo.coefficientTwo+'Q'}<sup>2</sup>{' + '+companyInfo.coefficientThree+'Q'}<sup>3</sup>
+                    </Typography> */}
                     </Paper>
             </Grid>
             <Grid >
@@ -380,7 +397,7 @@ class PlayerProfile extends React.Component {
   render() { 
     const { classes } = this.props;
     if(this.state.endSession == true){
-        return <EndGame roundInfo = {this.roundInfo} roomNum = {this.roomNum} database = {this.database} roomInfo = {this.roomInfo} groupNum = {this.groupNum} />
+        return <EndGame roundInfo = {this.roundInfo} roomNum = {this.roomNum} database = {this.database} roomInfo = {this.roomInfo} groupNum = {this.groupNum} windowWidth = {this.props.windowWidth} windowHeight = {this.props.windowHeight}/>
     }else{
         if(!this.state.submit){
             if(this.state.stackelberg){

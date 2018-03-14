@@ -122,6 +122,19 @@ class EndGame extends React.Component {
         
       })
   }
+
+  chartWidth() {
+    if(this.props.windowWidth > 1920) return 300;
+    if(this.props.windowWidth > 1366) return 250;
+    if(this.props.windowWidth > 1024) return 200;
+  }
+
+  chartHeight() {
+    if(this.props.windowWidth > 1920) return 300;
+    if(this.props.windowWidth > 1366) return 250;
+    if(this.props.windowWidth > 1024) return 200;
+  }
+
   render() { 
     let that = this;
     const { classes } = this.props;
@@ -141,38 +154,38 @@ class EndGame extends React.Component {
                 <Grid container alignItems = 'center' justify = 'center' direction = 'row'>
                     <Grid item xs = {3} style = {{marginTop:10}}>
                         <Typography type = "title">Price of Units Sold</Typography>
-                        <LineChart width={300} height={250} data={this.pricePerRounds}>
+                        <LineChart width={this.chartWidth.bind(this)()} height={this.chartHeight.bind(this)()} data={this.pricePerRounds}>
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis dataKey="name" />
                             <Tooltip />
-                            <Line type="monotone" dataKey="price" stroke="#8884d8" />
+                            <Line type="linear" dataKey="price" stroke="#8884d8" />
                         </LineChart>
                     </Grid>
                     <Grid item xs = {3} style = {{marginTop:10}}>
                         <Typography type = "title">Units Cost</Typography>
-                        <LineChart width={300} height={250} data={this.unitCostPerRounds}>
+                        <LineChart width={this.chartWidth.bind(this)()} height={this.chartHeight.bind(this)()} data={this.unitCostPerRounds}>
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis dataKey="name" />
                             <Tooltip />
-                            <Line type="monotone" dataKey="unitCost" stroke="#8884d8" />
+                            <Line type="linear" dataKey="unitCost" stroke="#8884d8" />
                         </LineChart>
                     </Grid>
                     <Grid item xs = {3} style = {{marginTop:10}}>
                     <Typography type = "title">Revenue</Typography>
-                        <LineChart width={300} height={250} data={this.revenuePerRounds}>
+                        <LineChart width={this.chartWidth.bind(this)()} height={this.chartHeight.bind(this)()} data={this.revenuePerRounds}>
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis dataKey="name" />
                             <Tooltip />
-                            <Line type="monotone" dataKey="revenue" stroke="#8884d8" />
+                            <Line type="linear" dataKey="revenue" stroke="#8884d8" />
                         </LineChart>
                     </Grid>
                     <Grid item xs = {3} style = {{marginTop:10}}>
                     <Typography type = "title">Profit</Typography>
-                        <LineChart width={300} height={250} data={this.profitPerRounds}>
+                        <LineChart width={this.chartWidth.bind(this)()} height={this.chartHeight.bind(this)()} data={this.profitPerRounds}>
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis dataKey="name" />
                             <Tooltip />
-                            <Line type="monotone" dataKey="profit" stroke="#8884d8" />
+                            <Line type="linear" dataKey="profit" stroke="#8884d8" />
                         </LineChart>
                     </Grid>
                 </Grid>
@@ -186,14 +199,15 @@ class EndGame extends React.Component {
                 <ExpansionPanelDetails> 
                 <Grid container alignItems = 'center' justify = 'flex-start' direction = 'row'>
                     {
+
                         Array.apply(null, {length:parseInt(this.roomInfo.firmNum)}).map(Number.call, Number).map(function(v){
                             return <Grid key={'firm'+(v+1)}item xs = {3} style = {{marginTop:10}}>
                                         <Typography type = "title">{'Firm'+(v+1)}</Typography>
-                                        <LineChart width={300} height={250} data={that.rounds[v]}>
+                                        <LineChart width={that.chartWidth()} height={that.chartHeight()} data={that.rounds[v]}>
                                             <CartesianGrid strokeDasharray="3 3" />
                                             <XAxis dataKey="name" />
                                             <Tooltip />
-                                            <Line type="monotone" dataKey="quantity" stroke="#8884d8" />
+                                            <Line type="linear" dataKey="quantity" stroke="#8884d8" />
                                         </LineChart>
                                   </Grid>
                         })
@@ -300,7 +314,7 @@ class EndGame extends React.Component {
                     </ExpansionPanelSummary>
                     <ExpansionPanelDetails> 
                     <Grid container alignItems = 'center' justify = 'flex-start' direction = 'row'>
-                    <BarChart barSize = {35}  width={400} height={250} data={that.profitPerCompany}>
+                    <BarChart barSize = {35}  width={this.chartWidth.bind(this)()} height={this.chartHeight.bind(this)()} data={that.profitPerCompany}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" />
                     <Tooltip />
@@ -316,7 +330,7 @@ class EndGame extends React.Component {
                     </ExpansionPanelSummary>
                     <ExpansionPanelDetails> 
                     <Grid container alignItems = 'center' justify = 'flex-start' direction = 'row'>
-                    <BarChart barSize = {35} width={400} height={250} data={that.accumprofitPerCompany}>
+                    <BarChart barSize = {35} width={this.chartWidth.bind(this)()} height={this.chartHeight.bind(this)()} data={that.accumprofitPerCompany}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" />
                     <Tooltip />

@@ -48,26 +48,39 @@ class Profit extends React.Component {
             var roomInfo = snap.val();
             for(var k = 1; k <= roundInfo.currentRound; k++){
                 that.data[k-1] = {
-                    name: k
+                    name: 'Round '+k
                 }
             }
             for(var i = 1; i <= roundInfo.currentRound;i++){
                 for(var u = 1; u <= parseInt(roomInfo.firmNum); u++){
-                    that.data[i-1][u] = roundInfo['round'+i][u].profit
+                    that.data[i-1]['Firm '+u] = roundInfo['round'+i][u].profit
                 }
             }
             console.log(that.data)
             that.setState({
-                display:true
+                display:true,
+                firmNum: roomInfo.firmNum,
             })
           })
           
       })
   }
+
+  renderProfit() {
+    var color = ["#8884d8", "#82ca9d", "#000000", "#555555"];
+    var renderDOM = [];
+    for(var i = 1; i <= this.state.firmNum; i++) {
+      renderDOM.push(
+        <Line type="linear" dataKey={'Firm '+i} stroke={color[i%4]} />
+      )
+    }
+    return renderDOM;
+  }
  
   render() { 
     const { classes } = this.props;
     if(this.state.display){
+      console.log(this.data);
       return (  
         <Grid item xs = {10}>
         <ExpansionPanel>
@@ -83,8 +96,7 @@ class Profit extends React.Component {
             <CartesianGrid strokeDasharray="3 3"/>
             <Tooltip/>
             <Legend />
-            <Line type="monotone" dataKey="1" stroke="#8884d8" activeDot={{r: 8}}/>
-            <Line type="monotone" dataKey="2" stroke="#82ca9d" />
+            {this.renderProfit()}
             </LineChart>
             </Grid>
             </ExpansionPanelDetails>
