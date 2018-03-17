@@ -40,7 +40,7 @@ class ApplicationBar extends React.Component {
     const { classes } = this.props;
     return (
         <AppBar position="static">
-            <Toolbar>
+            <Toolbar color={config.colors.top}>
                 <Typography type="title" color="inherit" className={classes.flex}>
                     {this.renderBarTitle(this.props.type)}
                 </Typography>
