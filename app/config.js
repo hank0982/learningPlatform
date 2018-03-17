@@ -2,7 +2,7 @@ module.exports = {
     /*
     Setting for HOME
     */
-    "app_name": "Business Strategy Stimulation System",
+    "app_name": "Business Competition Simulation",
     "student_button":"I want to be a student",
     "lecturer_button":"I want to be a lecturer",
     //Warning, when group number user entered is not sutable for this room

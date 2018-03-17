@@ -101,7 +101,7 @@ class ProductionQuantity extends React.Component {
   renderBarLineChart(){
     let roundInfo = this.state.roundInfo;
     var renderDOM = []
-    let colorPlate = ['#FF44AA','#CCFF33','#FF7744','#FFAA33','#FFCC22','#FFFF33','#CCFF33','#99FF33']
+    let colorPlate = ['#BBDEFB','#FFEB3B','#FF7744','#FFAA33','#FFCC22','#FFFF33','#CCFF33','#99FF33']
     for(var i = 1; i <= parseInt(roundInfo.currentRound); i++){
       if(i == parseInt(roundInfo.currentRound)){
         renderDOM.push(<Bar barsize = {10} dataKey={i} stackId="a" fill={colorPlate[1]} />)

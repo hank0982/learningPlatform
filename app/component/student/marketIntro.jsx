@@ -24,15 +24,15 @@ class MarketIntro extends React.Component {
     return (
         <div>
             <Typography type="display1" gutterBottom>{'Round ' + this.roundInfo.currentRound}</Typography>
-                <Typography type='headline' gutterBottom> Description of Firms </Typography>
+                <Typography type='headline' gutterBottom> Market Situation </Typography>
                 <Paper className={classes.root} elevation={4}>
                     <Typography style = {{whiteSpace: 'pre-line'}} type= 'body1' gutterBottom> {this.roomInfo.descriptionOfFirms} </Typography>
                 </Paper><br/>
-                <Typography type='headline' gutterBottom> Market Description </Typography>
+                <Typography type='headline' gutterBottom> Model of Market Structure </Typography>
                 <Paper className={classes.root} elevation={4}>
                     <Typography style = {{whiteSpace: 'pre-line'}} type= 'body1' gutterBottom> {this.roomInfo.marketDescription} </Typography>
                 </Paper><br/>
-                <Typography type='headline' gutterBottom> Goal of the Firms</Typography>
+                <Typography type='headline' gutterBottom> Firm's Objective</Typography>
                 <Paper className={classes.root} elevation={4}>
                     <Typography style = {{whiteSpace: 'pre-line'}} type= 'body1' gutterBottom> {this.roomInfo.goalOfFirms} </Typography>
                 </Paper><br/>

@@ -153,7 +153,7 @@ class EndGame extends React.Component {
                 <ExpansionPanelDetails> 
                 <Grid container alignItems = 'center' justify = 'center' direction = 'row'>
                     <Grid item xs = {3} style = {{marginTop:10}}>
-                        <Typography type = "title">Price of Units Sold</Typography>
+                        <Typography type = "title">Unit Price</Typography>
                         <LineChart width={this.chartWidth.bind(this)()} height={this.chartHeight.bind(this)()} data={this.pricePerRounds}>
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis dataKey="name" />
@@ -191,7 +191,7 @@ class EndGame extends React.Component {
                 </Grid>
                 </ExpansionPanelDetails>      
             </ExpansionPanel>
-            <Typography type = "headline"> Production of Each Firm </Typography>
+            <Typography type = "headline"> Each Firm's Output </Typography>
             <ExpansionPanel className = {classes.paper}>
                 <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
                     <Typography className={classes.heading}>Graphs</Typography>

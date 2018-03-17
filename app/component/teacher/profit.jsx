@@ -67,7 +67,7 @@ class Profit extends React.Component {
   }
 
   renderProfit() {
-    var color = ["#8884d8", "#82ca9d", "#000000", "#555555"];
+    var color = ["#03A9F4", "#8BC34A", "#FFEB3B", "#FF9800"];
     var renderDOM = [];
     for(var i = 1; i <= this.state.firmNum; i++) {
       renderDOM.push(

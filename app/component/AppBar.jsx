@@ -5,6 +5,8 @@ import AppBar from 'material-ui/AppBar';
 import Typography from 'material-ui/Typography';
 import Toolbar from 'material-ui/Toolbar';
 import config from '../config'
+import * as colors from 'material-ui/colors';
+
 const styles = {
     root: {
       width: '100%',
