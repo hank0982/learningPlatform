@@ -1,3 +1,4 @@
+*.swp
 key.js
 app/credential/
 bundle.js

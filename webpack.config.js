@@ -23,7 +23,7 @@ module.exports = {
             exclude: /(node_modules|bower_components)/
         }, {
             test: /\.css$/,
-            include: /node_modules/,
+            // include: /node_modules/,
             loaders: ['style-loader', 'css-loader'],
         }, { test: /\.(eot|woff)$/, loader: "file-loader" }]
     },
@@ -57,4 +57,9 @@ module.exports = {
     devServer: {
         historyApiFallback: true,
     },
+  watchOptions: {
+      poll: true,
+      ignored: /node_modules/
+
+  }
 };

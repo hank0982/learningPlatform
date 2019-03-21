@@ -96,72 +96,104 @@ class TeacherGameStart extends React.Component {
         var roundInfo = data.val();
         var totalQuantityInThisRound = 0;
         var totalCostArray = [];
-        console.log(roundInfo);
         for(var i = 1; i<=parseInt(that.state.startInfo.roomInfo.firmNum);i++){
             var companyQuantity = parseInt(roundInfo[i].quantityProduction);
+            
             totalQuantityInThisRound = totalQuantityInThisRound + companyQuantity;
             var coefficientOne = parseFloat(that.state.startInfo['company_'+i].coefficientOne)
             var coefficientTwo = parseFloat(that.state.startInfo['company_'+i].coefficientTwo)
             var coefficientThree = parseFloat(that.state.startInfo['company_'+i].coefficientThree)
             var constant = parseFloat(that.state.startInfo['company_'+i].constant)
             var totalCost = coefficientOne * companyQuantity + coefficientTwo * companyQuantity * companyQuantity + coefficientThree * companyQuantity *companyQuantity *companyQuantity + constant;
+            
             totalCostArray[i-1] = totalCost
             that.database.database().ref(that.roomNum+'/on/round/round'+that.state.currentRound).child(i).child('totalCost').set(totalCost);
-            that.database.database().ref(that.roomNum+'/on/round/round'+that.state.currentRound).child(i).child('unitCost').set(totalCost/companyQuantity);
+
+            if(companyQuantity == 0){
+                that.database.database().ref(that.roomNum+'/on/round/round'+that.state.currentRound).child(i).child('unitCost').set(0);
+            }else{
+                that.database.database().ref(that.roomNum+'/on/round/round'+that.state.currentRound).child(i).child('unitCost').set(totalCost/companyQuantity);
+            }
         }
         var price = 0;
-        console.log(that.state)
         if(that.state.startInfo.roomInfo.marketType == 'monoply'){
 
             console.log('monoply')
             price = [];
             for(var i = 1; i<=parseInt(that.state.startInfo.roomInfo.firmNum);i++){
-                price[i-1] = parseFloat(that.state.startInfo.roomInfo.constant) + parseFloat(that.state.startInfo.roomInfo.slope) * roundInfo[i].quantityProduction
+                var tempPrice = parseFloat(that.state.startInfo.roomInfo.constant) + parseFloat(that.state.startInfo.roomInfo.slope) * roundInfo[i].quantityProduction;
+                if(tempPrice >= 0){
+                    price[i-1] = tempPrice    
+                }else{
+                    price[i-1] = 0;
+                }
                 that.database.database().ref(that.roomNum+'/on/round/round'+that.state.currentRound+'/'+i).child('price').set(price[i-1])
             }
 
         }else{
-            price = parseFloat(that.state.startInfo.roomInfo.constant) + parseFloat(that.state.startInfo.roomInfo.slope) * totalQuantityInThisRound
+            var tempPrice = parseFloat(that.state.startInfo.roomInfo.constant) + parseFloat(that.state.startInfo.roomInfo.slope) * totalQuantityInThisRound;
+            if(tempPrice >= 0){
+                price = tempPrice;
+            }else{
+                price = 0
+            }
             that.database.database().ref(that.roomNum+'/on/round/round'+that.state.currentRound).child('price').set(price);
         }
         var firmQuantity = [];
         for(var s = 1; s<=parseInt(that.state.startInfo.roomInfo.firmNum);s++){
             firmQuantity[s-1] = parseInt(roundInfo[s].quantityProduction);
         }
+        var borrow_group = []
         for(var i = 1; i<=parseInt(that.state.startInfo.roomInfo.firmNum);i++){
+            var ref_company_i = that.database.database().ref(that.roomNum+'/on/company_'+i);
+            var profit = 0;
+            var nowCash = 0;
             if(that.state.startInfo.roomInfo.marketType == 'monoply'){
-                var profit = price[i-1] * firmQuantity[i-1] - totalCostArray[i-1];
+                profit = price[i-1] * firmQuantity[i-1] - totalCostArray[i-1];
                 that.database.database().ref(that.roomNum+'/on/round/round'+that.state.currentRound).child(i).child('revenue').set(price[i-1] * firmQuantity[i-1]);
-                that.database.database().ref(that.roomNum+'/on/round/round'+that.state.currentRound).child(i).child('profit').set(profit);
-                var nowCash = parseFloat(that.state.startInfo['company_'+i].assetCash) + profit
-                if(roundInfo[i].isBorrowing){
-                    var nowBorrowing = parseFloat(roundInfo[i].numBorrowing) + parseFloat(that.state.startInfo['company_'+i].liabilitiesBorrwoing)
-                    that.database.database().ref(that.roomNum+'/on/company_'+i).child('liabilitiesBorrwoing').set(nowBorrowing)
-                    that.database.database().ref(that.roomNum+'/on/company_'+i).child('assetCash').set(nowCash+nowBorrowing);
-                }else{
-                    that.database.database().ref(that.roomNum+'/on/company_'+i).child('assetCash').set(nowCash)
-                }
-                var newBeg = parseFloat(that.state.startInfo['company_'+i].netIncome) + parseFloat(that.state.startInfo['company_'+i].beg); 
-                that.database.database().ref(that.roomNum+'/on/company_'+i).child('beg').set(newBeg);
-                that.database.database().ref(that.roomNum+'/on/company_'+i).child('netIncome').set(profit);
+                nowCash = parseFloat(that.state.startInfo['company_'+i].assetCash) + profit 
             }else{
-                var profit = price * firmQuantity[i-1] - totalCostArray[i-1];
+                profit = price * firmQuantity[i-1] - totalCostArray[i-1];
                 that.database.database().ref(that.roomNum+'/on/round/round'+that.state.currentRound).child(i).child('revenue').set(price * firmQuantity[i-1]);
-                that.database.database().ref(that.roomNum+'/on/round/round'+that.state.currentRound).child(i).child('profit').set(profit);
-                var nowCash = parseFloat(that.state.startInfo['company_'+i].assetCash) + profit
-                if(roundInfo[i].isBorrowing){
-                    var nowBorrowing = parseFloat(roundInfo[i].numBorrowing) + parseFloat(that.state.startInfo['company_'+i].liabilitiesBorrwoing)
-                    that.database.database().ref(that.roomNum+'/on/company_'+i).child('liabilitiesBorrwoing').set(nowBorrowing)
-                    that.database.database().ref(that.roomNum+'/on/company_'+i).child('assetCash').set(nowCash+nowBorrowing);
-                }else{
-                    that.database.database().ref(that.roomNum+'/on/company_'+i).child('assetCash').set(nowCash)
-                }
-                var newBeg = parseFloat(that.state.startInfo['company_'+i].netIncome) + parseFloat(that.state.startInfo['company_'+i].beg); 
-                that.database.database().ref(that.roomNum+'/on/company_'+i).child('beg').set(newBeg);
-                that.database.database().ref(that.roomNum+'/on/company_'+i).child('netIncome').set(profit);
+                nowCash = parseFloat(that.state.startInfo['company_'+i].assetCash) + profit  
             }
+            that.database.database().ref(that.roomNum+'/on/round/round'+that.state.currentRound).child(i).child('profit').set(profit);
+            var nextRountRef = that.database.database().ref(that.roomNum+'/on/round/round'+(that.state.currentRound+1));
+            console.log(parseFloat(roundInfo[i].numBorrowing))
+            if(roundInfo[i].isBorrowing && parseFloat(roundInfo[i].numBorrowing)){
+                borrow_group.push({
+                    groupNum: i,
+                    numBorrowing: Number(roundInfo[i].numBorrowing)
+                })
             
+                
+                // nextRountRef.child(i).child('borrowed').set(numBorrowing);
+            }else{
+                ref_company_i.child('assetCash').set(nowCash)
+                // nextRountRef.child(i).child('borrowed').set(0);
+            }
+            var newBeg = parseFloat(that.state.startInfo['company_'+i].netIncome) + parseFloat(that.state.startInfo['company_'+i].beg); 
+            ref_company_i.child('beg').set(newBeg);
+            ref_company_i.child('netIncome').set(profit);
         }
+        console.log(borrow_group)
+        borrow_group.map(function(group){
+            console.log(roundInfo)
+            console.log(group.groupNum)
+            that.database.database().ref(that.roomNum+'/on/company_'+group.groupNum).child('liabilitiesBorrwoing').once('value').then(function(data){
+                console.log(roundInfo)
+                console.log(roundInfo[group.groupNum])
+                return parseFloat(roundInfo[group.groupNum].numBorrowing)  + parseFloat(data.val());
+            }).then(function(money){
+                that.database.database().ref(that.roomNum+'/on/company_'+group.groupNum).child('liabilitiesBorrwoing').set(money)
+                return money
+            }).then(function(money){
+                that.database.database().ref(that.roomNum+'/on/company_'+group.groupNum).child('assetCash').set(nowCash+money)
+            }   
+            )
+        })
+      }).then(function(){
+          
       })
   }
   endRound(ev){
@@ -219,8 +251,8 @@ class TeacherGameStart extends React.Component {
                     </ListItem>
                     {
                         this.state.message &&
-                        this.state.message.map(function(data){
-                            return <ListItem >
+                        this.state.message.map(function(data, index){
+                            return <ListItem key={index}>
                                         <Chip label={data.time} className={classes.chip} /> <Typography style={{margin: 'auto'}} type = 'body1'>{data.message}</Typography>
                                     </ListItem>
                         })

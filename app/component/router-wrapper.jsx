@@ -14,7 +14,7 @@ import config from '../credential/key';
 class RouterWrapper extends React.Component {  
   constructor(props){
       super(props);
-      this.socket = io('http://localhost:8080/');
+    this.socket = io('http://192.168.1.115:8080');
       this.database = firebase.initializeApp(config,'database')
       this.state = { windowWidth: 0, windowHeight: 0, socket: this.socket, database: this.database};
       this.updateWindowDimensions = this.updateWindowDimensions.bind(this);

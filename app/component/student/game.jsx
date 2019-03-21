@@ -55,7 +55,7 @@ class Game extends React.Component {
       this.state = {
           tab: 0,
       }
-      
+      console.log(this.roomNum)
       var roomRef = this.database.database().ref(this.roomNum);
       roomRef.child('on').child('roomInfo').once('value').then(function(data){
         that.setState({
