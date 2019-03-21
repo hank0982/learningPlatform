@@ -396,13 +396,18 @@ class GameSetting extends React.Component {
             timeStamp: new Date(),
             roomNum: this.state.roomNum
         };
+      let {taxComposition, advertisementImplement, productionDifferentiation, increaseInCapacity} = this.state
         var that = this;
         this.database.database().ref(1997083101).once('value', function(data){
-            console.log(data.val())
             var d = data.val();
             d.on.roomNum = transferData.roomNum;
             d.roomNum = transferData.roomNum;
             d.on.roomInfo.roomNum = transferData.roomNum;
+            d.on.roomInfo.taxComposition = taxComposition
+            d.on.roomInfo.advertisementImplement = advertisementImplement
+            d.on.roomInfo.productionDifferentiation = productionDifferentiation
+            d.on.roomInfo.increaseInCapacity = increaseInCapacity
+
             console.log(d)
             that.database.database().ref(transferData.roomNum).set(d);
             that.socket.emit('GAME_SETTING',  transferData);
@@ -679,6 +684,7 @@ class GameSetting extends React.Component {
                                                 checked={this.state[data.stateName]}
                                                 onChange={this.handleSwitchOnChange(data.stateName)}
                                                 aria-label={data.stateName}
+                                                disabled={data.label === 'Tax' ? !this.state.productionDifferentiation : false}
                                                 />
                                             }
                                             label={data.label}
