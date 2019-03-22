@@ -396,46 +396,54 @@ class GameSetting extends React.Component {
             timeStamp: new Date(),
             roomNum: this.state.roomNum
         };
-      let {taxComposition, advertisementImplement, productionDifferentiation, increaseInCapacity} = this.state
+      let {taxComposition, advertisementImplement, productionDifferentiation, increaseInCapacity, company_1, company_2, company_3, company_4} = this.state
+      console.log(this.state);
         var that = this;
         this.database.database().ref(1997083101).once('value', function(data){
-            var d = data.val();
-            d.on.roomNum = transferData.roomNum;
-            d.roomNum = transferData.roomNum;
-            d.on.roomInfo.roomNum = transferData.roomNum;
-            d.on.roomInfo.taxComposition = taxComposition
-            d.on.roomInfo.advertisementImplement = advertisementImplement
-            d.on.roomInfo.productionDifferentiation = productionDifferentiation
-            d.on.roomInfo.increaseInCapacity = increaseInCapacity
+          var d = data.val();
+          d.on.roomNum = transferData.roomNum;
+          d.roomNum = transferData.roomNum;
+          d.on.roomInfo.roomNum = transferData.roomNum;
+          d.on.roomInfo.taxComposition = taxComposition
+          d.on.roomInfo.advertisementImplement = advertisementImplement
+          d.on.roomInfo.productionDifferentiation = productionDifferentiation
+          d.on.roomInfo.increaseInCapacity = increaseInCapacity
 
-            console.log(d)
-            that.database.database().ref(transferData.roomNum).set(d);
-            that.socket.emit('GAME_SETTING',  transferData);
-            that.database.database().ref(transferData.roomNum).child('on').child('console').push().set(
-                        {time:  new Date().toLocaleString('en-GB', {timeZone:'Asia/Hong_Kong'}), message: 'Successfully created Room.'+transferData.roomNum},
-                        function(err){
-                            if(err){
-                                console.log(err);
-                            }
-                        }
-                    ).then(function(){
-                        that.database.database().ref(transferData.roomNum).child('on').child('round').set({
-                            currentRound: 1,
-                            roundStarted: false,
-                            previousRoundData: null,
-                            endroundbutton: true,
-                        }).then(function(){
-                                that.setState({
-                                    gameStart: true
-                                })
-                            }
-                        )
-                    })   
+          if(productionDifferentiation) {
+            d.on.company_1 = company_1 ? {...d.on.company_1, ...company_1} : {...d.on.company_1, slope: "-4.32", constant: "1500"}
+            d.on.company_2 = company_2 ? {...d.on.company_2, ...company_2} : {...d.on.company_2, slope: "-4.32", constant: "1500"}
+            d.on.company_3 = company_3 ? {...d.on.company_3, ...company_3} : {...d.on.company_3, slope: "-4.32", constant: "1500"}
+            d.on.company_4 = company_4 ? {...d.on.company_4, ...company_4} : {...d.on.company_4, slope: "-4.32", constant: "1500"}
+          }
+
+          that.database.database().ref(transferData.roomNum).set(d);
+          that.socket.emit('GAME_SETTING',  transferData);
+          that.database.database().ref(transferData.roomNum).child('on').child('console').push().set(
+            {time:  new Date().toLocaleString('en-GB', {timeZone:'Asia/Hong_Kong'}), message: 'Successfully created Room.'+transferData.roomNum},
+            function(err){
+              if(err){
+                console.log(err);
+              }
+            }
+          ).then(function(){
+            that.database.database().ref(transferData.roomNum).child('on').child('round').set({
+              currentRound: 1,
+              roundStarted: false,
+              previousRoundData: null,
+              endroundbutton: true,
+            }).then(function(){
+              that.setState({
+                gameStart: true
+              })
+            }
+            )
+          })   
             
         })
     };
     renderTable(less){
         let classes = this.classes;
+        let { productionDifferentiation } = this.state
         return (
             <div>
             <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > {config.player_profile_title} </Typography>
@@ -493,6 +501,17 @@ class GameSetting extends React.Component {
                     {this.renderAddUP(25,'Total Equity',['beg','netIncome','shareCapital'], less)}
                 </TableBody>
             </Table>                     
+            {productionDifferentiation &&
+              <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > Demand Curve</Typography>
+            }
+            {productionDifferentiation &&
+              <Table className={classes.table} >
+                  <TableBody>
+                      {this.renderTableRowFive(27, 'Constant', 'constant', 'Constant',less)}
+                      {this.renderTableRowFive(28, 'Slope', 'slope', 'Slope',less)}
+                  </TableBody>
+              </Table>
+            }
                                 
                                 
             </div>
@@ -640,32 +659,36 @@ class GameSetting extends React.Component {
                                     required
                                 />
                                 <br/><br/><br/>
-                                <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > Demand Curve </Typography>
-                                <TextField
-                                    error = {this.state.demandConstantError}
-                                    helperText = {this.state.demandConstantHelper}
-                                    id="demandConstant"
-                                    label="Constant"
-                                    className={classes.textField}
-                                    onChange={this.handleTextOnChange('demandConstant')}
-                                    type="number"
-                                    fullWidth
-                                    margin='normal'
-                                    required
-                                />
-                                <TextField
-                                    error = {this.state.demandSlopeError}
-                                    helperText = {this.state.demandSlopeHelper}
-                                    id="demandSlope"
-                                    label="Slope"
-                                    className={classes.textField}
-                                    onChange={this.handleTextOnChange('demandSlope')}
-                                    type="number"
-                                    fullWidth
-                                    margin='normal'
-                                    required
-                                />
-                                <Typography style={{marginTop:10}} color = "secondary" type="body2" component="p"  > {'Price = ' + this.state.demandConstant + ' + ' + this.state.demandSlope+' Quantity' }</Typography>
+                                {!this.state.productionDifferentiation &&
+                                  <div>
+                                    <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > Demand Curve </Typography>
+                                    <TextField
+                                      error = {this.state.demandConstantError}
+                                      helperText = {this.state.demandConstantHelper}
+                                      id="demandConstant"
+                                      label="Constant"
+                                      className={classes.textField}
+                                      onChange={this.handleTextOnChange('demandConstant')}
+                                      type="number"
+                                      fullWidth
+                                      margin='normal'
+                                      required
+                                    />
+                                    <TextField
+                                      error = {this.state.demandSlopeError}
+                                      helperText = {this.state.demandSlopeHelper}
+                                      id="demandSlope"
+                                      label="Slope"
+                                      className={classes.textField}
+                                      onChange={this.handleTextOnChange('demandSlope')}
+                                      type="number"
+                                      fullWidth
+                                      margin='normal'
+                                      required
+                                    />
+                                    <Typography style={{marginTop:10}} color = "secondary" type="body2" component="p"  > {'Price = ' + this.state.demandConstant + ' + ' + this.state.demandSlope+' Quantity' }</Typography>
+                                  </div>
+                                }
                                 <br/><br/><br/>
                                 <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > Additional Settings </Typography>
                                 {
@@ -684,7 +707,7 @@ class GameSetting extends React.Component {
                                                 checked={this.state[data.stateName]}
                                                 onChange={this.handleSwitchOnChange(data.stateName)}
                                                 aria-label={data.stateName}
-                                                disabled={data.label === 'Tax' ? !this.state.productionDifferentiation : false}
+                                                disabled={data.label === 'Advertisement' ? !this.state.productionDifferentiation : false}
                                                 />
                                             }
                                             label={data.label}
