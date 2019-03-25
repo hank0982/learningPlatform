@@ -109,10 +109,17 @@ class GameSetting extends React.Component {
             });
         };
         this.handleSwitchOnChange = name => (event, checked) => {
-            that.setState({
-                [name]: checked
-            });
-        
+          let { marketType } = this.state
+
+          if(name === 'productionDifferentiation' && marketType === 'monoply' && checked === true) {
+            this.setState({
+              marketType: 'cournot'
+            })
+          }
+
+          that.setState({
+              [name]: checked
+          });
         };
         
         this.renderSnackBar = () => {
@@ -620,7 +627,10 @@ class GameSetting extends React.Component {
                                         onChange={this.handleSelectOnChange}
                                         input={<Input name="marketType" id="market-type" />}   
                                     >
+                                      {!this.state.productionDifferentiation &&
+
                                         <MenuItem value={'monoply'}>Monoply</MenuItem>
+                                      }
                                         <MenuItem value={'cournot'}>Cournot</MenuItem>
                                         <MenuItem value={'stackelberg'}>Stackelberg</MenuItem>
                                     </Select>
