@@ -1,12 +1,14 @@
 import React from "react";
+// node js library
 import PropTypes from 'prop-types';
+
+// material-ui library
 import { withStyles } from 'material-ui/styles';
 import Paper from 'material-ui/Paper';
 import Typography from 'material-ui/Typography';
 import Grid from 'material-ui/Grid';
 import Button from 'material-ui/Button';
 import TextField from 'material-ui/TextField';
-import ApplicationBar from '../AppBar'
 import Select from 'material-ui/Select';
 import { MenuItem } from 'material-ui/Menu';
 import { FormControl } from 'material-ui/Form';
@@ -14,8 +16,17 @@ import Input, { InputLabel } from 'material-ui/Input';
 import Switch from 'material-ui/Switch';
 import { FormControlLabel } from 'material-ui/Form';
 import Snackbar from 'material-ui/Snackbar';
-import { Redirect } from 'react-router';
 import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Table';
+
+// other libraries
+import { Redirect } from 'react-router';
+
+// other components
+import ApplicationBar from '../AppBar'
+
+// config file
+import config from "../../config"
+
 const styles = theme => ({
     root: theme.mixins.gutters({
         paddingTop: 8,
@@ -38,6 +49,7 @@ const styles = theme => ({
         minWidth: 700,
     }),
 });
+
 class GameSetting extends React.Component {
     constructor(props) {
         super(props);
@@ -65,6 +77,7 @@ class GameSetting extends React.Component {
         this.classes = props.classes;
         this.socket = this.props.socket;
         this.database = this.props.database;
+        
         this.socket.on('SUCCESS', function(data) {
             that.setState({
                 open: true,
@@ -96,10 +109,17 @@ class GameSetting extends React.Component {
             });
         };
         this.handleSwitchOnChange = name => (event, checked) => {
-            that.setState({
-                [name]: checked
-            });
-        
+          let { marketType } = this.state
+
+          if(name === 'productionDifferentiation' && marketType === 'monoply' && checked === true) {
+            this.setState({
+              marketType: 'cournot'
+            })
+          }
+
+          that.setState({
+              [name]: checked
+          });
         };
         
         this.renderSnackBar = () => {
@@ -121,97 +141,17 @@ class GameSetting extends React.Component {
             )  
         };
     }
-    handleSubmit = ev =>{
-        ev.preventDefault();
-        let that = this;
-        let printerror = false;
-        var companys = {};
-        var dataTypeInCompany = ['companyDescription','marketInterestRate','constant','coefficientOne','coefficientTwo','coefficientThree','maximum','minimum','assetCash','assetPPE','assetLand','liabilitiesBorrwoing','shareCapital','beg','netIncome']
-        for(let i = 1; i <= that.state.firmNum; i++){
-            if(!that.state['company_'+i]){
-                printerror = true;
-                break;
-            }else{
-                let company = that.state['company_'+i]
-                companys['company_'+i] = company;
-                dataTypeInCompany.map(function(type){
-                    if(!company[type]){
-                        printerror = true;
-                        return;
-                    }
-                    // if(type == 'consant' || type == 'coefficientOne' || type == 'coefficientTwo' || type == 'coefficientThree') {
-                    //     company[type] = company[type].tofixed(3);
-                    // }
-                })
+    componentDidMount(){
+        var that = this;
+        this.database.database().ref(this.state.roomNum).once('value', function(data){
+            var exists = (data.val() !== null);
+            if(exists){
+                that.setState({
+                    roomExist: true
+                });
             }
-
-        }
-        var roomInfo = {
-            roomNum: this.state.roomNum,
-            firmNum: this.state.firmNum,
-            marketType: this.state.marketType,
-            roundNum: this.state.roundNum,
-            constant: this.state.demandConstant, //
-            slope: this.state.demandSlope, //
-            increaseInCapacity: this.state.increaseInCapacity,
-            advertisementImplement: this.state.advertisementImplement,
-            taxComposition: this.state.taxComposition,
-            gameRule: this.state.gameRule,
-            goalOfFirms: this.state.goalOfFirms,
-            marketDescription: this.state.marketDescription,
-            descriptionOfFirms: this.state.descriptionOfFirms,
-            productionDifferentiation: this.state.productionDifferentiation
-        }
-        if(roomInfo.marketType == 'stackelberg'){
-            roomInfo = {
-                ...roomInfo,
-                leader: this.state.leader
-            }
-        }
-        var transferData = {
-            ...companys,
-            roomInfo: roomInfo,
-            timeStamp: new Date(),
-            roomNum: this.state.roomNum
-        };
-        if(transferData.roomInfo.constant && transferData.roomInfo.firmNum && transferData.roomInfo.slope && transferData.roomInfo.roundNum && !printerror){
-            this.socket.emit('GAME_SETTING',  transferData);
-            this.database.database().ref(transferData.roomInfo.roomNum).child('on').set(transferData, function(err){
-                if(err){
-                    console.log(err);
-                }else{
-                    that.database.database().ref(transferData.roomInfo.roomNum).child('on').child('console').push().set(
-                        {time:  new Date().toLocaleString('en-GB', {timeZone:'Asia/Hong_Kong'}), message: 'Successfully created Room.'+transferData.roomNum},
-                        function(err){
-                            if(err){
-                                console.log(err);
-                            }
-                        }
-                    ).then(function(){
-                        that.database.database().ref(transferData.roomInfo.roomNum).child('on').child('round').set({
-                            currentRound: 1,
-                            roundStarted: false,
-                            previousRoundData: null,
-                            endroundbutton: true,
-                        }).then(function(){
-                                that.setState({
-                                    gameStart: true
-                                })
-                            }
-                        )
-                    })   
-                }
-            }
-            );
-            console.log(transferData);
-        }else{
-            console.log(roomInfo)
-            that.setState({
-                open: true,
-                snackbarMessage: 'WARNING! Please provide sufficient data'
-            })
-        }
-    };
+        })
+    }
     handleTextOnChange = name => event => {
         let that = this;
         var value;
@@ -235,13 +175,13 @@ class GameSetting extends React.Component {
             }
         }
         if(name === 'firmNum'){
-            judge(10, 0, 'Please enter number from 1 to 10',);
+            judge(10, 0, config.warning_firmNum_exception,);
         }
         if(name === 'roundNum'){
-            judge(10, 1, 'Please enter number from 1 to 10',);
+            judge(10, 1, config.warning_roundNum_exception,);
         }
         if(name === 'demandConstant'){
-            judge(9999, 1, 'Please enter number from 1 to 9999',);
+            judge(9999, 1, config.warning_demandConstant_exception,);
         }
         if(name.slice(0,'constant'.length) === 'constant'){
             judge(9999, 1, 'Please enter number from 1 to 9999',);
@@ -371,69 +311,235 @@ class GameSetting extends React.Component {
         </TableRow>
         )
     };
+    handleSubmit = ev =>{
+        ev.preventDefault();
+        let that = this;
+        let printerror = false;
+        var companys = {};
+        var dataTypeInCompany = ['companyDescription','marketInterestRate','constant','coefficientOne','coefficientTwo','coefficientThree','maximum','minimum','assetCash','assetPPE','assetLand','liabilitiesBorrwoing','shareCapital','beg','netIncome']
+        for(let i = 1; i <= that.state.firmNum; i++){
+            if(!that.state['company_'+i]){
+                printerror = true;
+                break;
+            }else{
+                let company = that.state['company_'+i]
+                companys['company_'+i] = company;
+                dataTypeInCompany.map(function(type){
+                    if(!company[type]){
+                        printerror = true;
+                        return;
+                    }
+                })
+            }
+
+        }
+        var roomInfo = {
+            roomNum: this.state.roomNum,
+            firmNum: this.state.firmNum,
+            marketType: this.state.marketType,
+            roundNum: this.state.roundNum,
+            constant: this.state.demandConstant, //
+            slope: this.state.demandSlope, //
+            increaseInCapacity: this.state.increaseInCapacity,
+            advertisementImplement: this.state.advertisementImplement,
+            taxComposition: this.state.taxComposition,
+            gameRule: this.state.gameRule,
+            goalOfFirms: this.state.goalOfFirms,
+            marketDescription: this.state.marketDescription,
+            descriptionOfFirms: this.state.descriptionOfFirms,
+            productionDifferentiation: this.state.productionDifferentiation
+        }
+        if(roomInfo.marketType == 'stackelberg'){
+            roomInfo = {
+                ...roomInfo,
+                leader: this.state.leader
+            }
+        }
+        var transferData = {
+            ...companys,
+            roomInfo: roomInfo,
+            timeStamp: new Date(),
+            roomNum: this.state.roomNum
+        };
+        if(transferData.roomInfo.constant && transferData.roomInfo.firmNum && transferData.roomInfo.slope && transferData.roomInfo.roundNum && !printerror){
+            this.socket.emit('GAME_SETTING',  transferData);
+            this.database.database().ref(transferData.roomInfo.roomNum).child('on').set(transferData, function(err){
+                if(err){
+                    console.log(err);
+                }else{
+                    that.database.database().ref(transferData.roomInfo.roomNum).child('on').child('console').push().set(
+                        {time:  new Date().toLocaleString('en-GB', {timeZone:'Asia/Hong_Kong'}), message: 'Successfully created Room.'+transferData.roomNum},
+                        function(err){
+                            if(err){
+                                console.log(err);
+                            }
+                        }
+                    ).then(function(){
+                        that.database.database().ref(transferData.roomInfo.roomNum).child('on').child('round').set({
+                            currentRound: 1,
+                            roundStarted: false,
+                            previousRoundData: null,
+                            endroundbutton: true,
+                        }).then(function(){
+                                that.setState({
+                                    gameStart: true
+                                })
+                            }
+                        )
+                    })   
+                }
+            }
+            );
+        }else{
+            console.log(roomInfo)
+            that.setState({
+                open: true,
+                snackbarMessage: 'WARNING! Please provide sufficient data'
+            })
+        }
+    };
+    defaultValue(){
+        var transferData = {
+            timeStamp: new Date(),
+            roomNum: this.state.roomNum
+        };
+      let {taxComposition, advertisementImplement, productionDifferentiation, increaseInCapacity, company_1, company_2, company_3, company_4} = this.state
+      console.log(this.state);
+        var that = this;
+        this.database.database().ref(1997083101).once('value', function(data){
+          var d = data.val();
+          d.on.roomNum = transferData.roomNum;
+          d.roomNum = transferData.roomNum;
+          d.on.roomInfo.roomNum = transferData.roomNum;
+          d.on.roomInfo.taxComposition = taxComposition
+          d.on.roomInfo.advertisementImplement = advertisementImplement
+          d.on.roomInfo.productionDifferentiation = productionDifferentiation
+          d.on.roomInfo.increaseInCapacity = increaseInCapacity
+
+          if(productionDifferentiation) {
+            let df = {slope1: "-4.32", slope2: "-4.32", slope3: "-4.32", slope4: "-4.32", constant: "1500", adv: "1.1"}
+            d.on.company_1 = company_1 ? {...d.on.company_1, ...df, ...company_1} : { ...d.on.company_1, ...df }
+            d.on.company_2 = company_2 ? {...d.on.company_2, ...df, ...company_2} : { ...d.on.company_2, ...df }
+            d.on.company_3 = company_3 ? {...d.on.company_3, ...df, ...company_3} : { ...d.on.company_3, ...df }
+            d.on.company_4 = company_4 ? {...d.on.company_4, ...df, ...company_4} : { ...d.on.company_4, ...df }
+          }
+
+          that.database.database().ref(transferData.roomNum).set(d);
+          that.socket.emit('GAME_SETTING',  transferData);
+          that.database.database().ref(transferData.roomNum).child('on').child('console').push().set(
+            {time:  new Date().toLocaleString('en-GB', {timeZone:'Asia/Hong_Kong'}), message: 'Successfully created Room.'+transferData.roomNum},
+            function(err){
+              if(err){
+                console.log(err);
+              }
+            }
+          ).then(function(){
+            that.database.database().ref(transferData.roomNum).child('on').child('round').set({
+              currentRound: 1,
+              roundStarted: false,
+              previousRoundData: null,
+              endroundbutton: true,
+            }).then(function(){
+              that.setState({
+                gameStart: true
+              })
+            }
+            )
+          })   
+            
+        })
+    };
     renderTable(less){
-        let classes = this.classes;
-        return (
-            <div>
-            <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > Firm's Profile </Typography>
-            <Table className={classes.table} >      
-                <TableBody>
-                {this.renderTableRowFive(1, 'Company Name', 'companyName', 'Company Name',less,null)}
-                </TableBody>
-            </Table>
-            <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > Production Cost </Typography>
-            <Table className={classes.table} >
-                <TableBody>
-                    {this.renderTableRowFive(3, 'Constant', 'constant', 'Constant',less)}
-                    {this.renderTableRowFive(4, 'Coefficient 1', 'coefficientOne', 'Coefficient 1',less)}
-                    {this.renderTableRowFive(5, 'Coefficient 2', 'coefficientTwo', 'Coefficient 2',less)}
-                    {this.renderTableRowFive(6, 'Coefficient 3', 'coefficientThree', 'Coefficient 3',less)}
-                </TableBody>
-            </Table>
-            <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > Production Capacity </Typography>
-            <Table className={classes.table} >
-                <TableBody>
-                    {this.renderTableRowFive(8, 'Maximum', 'maximum', 'Maximum',less)}
-                    {this.renderTableRowFive(9, 'Minimum', 'minimum', 'Minimum',less)}
-                    {this.renderTableRowFive(26, 'Market Interest Rate', 'marketInterestRate', 'Rate',less)} 
-                </TableBody>
-            </Table>
-            <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > Balance Sheet </Typography>
-            <Typography style={{marginTop:10}} color = "secondary" type="body1" component="h2"  > Asset </Typography>
-            <Table className={classes.table} >
-                <TableBody>
-                    {this.renderTableRowFive(12, 'Cash', 'assetCash', 'Cash',less)}
-                    {this.renderTableRowFive(13, 'Plant, Property and Equipment', 'assetPPE', 'Plant..',less)}        
-                    {this.renderTableRowFive(14, 'Land', 'assetLand', 'Land',less)}
-                    {this.renderAddUP(15,'Total Asset',['assetCash','assetLand','assetPPE'], less)}
-                </TableBody>
-            </Table>   
-            <Typography style={{marginTop:10}} color = "secondary" type="body1" component="h2"  > Liabilities </Typography>
-            <Table className={classes.table} >
-                <TableBody>
-                    {this.renderTableRowFive(17, 'Borrwoing', 'liabilitiesBorrwoing', 'Borrwoing',less)}
-                    {this.renderAddUP(18,'Total Liabilities',['liabilitiesBorrwoing'], less)}
-                </TableBody>
-            </Table>                                    
-            <Typography style={{marginTop:10}} color = "secondary" type="body1" component="h2"  > Equity </Typography>
-            <Table className={classes.table} >
-                <TableBody>
-                    {this.renderTableRowFive(20, 'Share Capital', 'shareCapital', 'Share Capital',less)} 
-                </TableBody>
-            </Table>                       
-            <Typography style={{marginTop:10}} color = "secondary" type="body1" component="h2"  > Retained Earnings </Typography>
-            <Table className={classes.table} >
-                <TableBody>
-                    {this.renderTableRowFive(22, 'Beg.', 'beg', 'Beg.',less)}
-                    {this.renderTableRowFive(23, 'Net income', 'netIncome', 'Net Income',less)}        
-                    {this.renderAddUP(24,'Total Retained Earnings',['beg','netIncome'], less)}
-                    {this.renderAddUP(25,'Total Equity',['beg','netIncome','shareCapital'], less)}
-                </TableBody>
-            </Table>                     
-                                
-                                
-            </div>
-        )
+      let classes = this.classes;
+      let { productionDifferentiation, advertisementImplement, firmNum } = this.state
+      let slopes = []
+
+      if(productionDifferentiation === true) {
+        for(let i = 1; i <= firmNum; i++) {
+          slopes.push(this.renderTableRowFive(`slope28-${i}`, `Slope${i}`, `slope${i}`, `Slope${i}`,less))
+        }
+      }
+
+      return (
+        <div>
+          <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > {config.player_profile_title} </Typography>
+          <Table className={classes.table} >      
+            <TableBody>
+              {this.renderTableRowFive(1, 'Company Name', 'companyName', 'Company Name',less,null)}
+            </TableBody>
+          </Table>
+          <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"> {config.production_cost}</Typography>
+          <Table className={classes.table} >
+            <TableBody>
+              {this.renderTableRowFive(3, 'Constant', 'constant', 'Constant',less)}
+              {this.renderTableRowFive(4, 'Coefficient 1', 'coefficientOne', 'Coefficient 1',less)}
+              {this.renderTableRowFive(5, 'Coefficient 2', 'coefficientTwo', 'Coefficient 2',less)}
+              {this.renderTableRowFive(6, 'Coefficient 3', 'coefficientThree', 'Coefficient 3',less)}
+            </TableBody>
+          </Table>
+          <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > {config.production_capacity} </Typography>
+          <Table className={classes.table} >
+            <TableBody>
+              {this.renderTableRowFive(8, 'Maximum', 'maximum', 'Maximum',less)}
+              {this.renderTableRowFive(9, 'Minimum', 'minimum', 'Minimum',less)}
+              {this.renderTableRowFive(26, 'Market Interest Rate', 'marketInterestRate', 'Rate',less)} 
+            </TableBody>
+          </Table>
+          <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > {config.balance_sheet}</Typography>
+          <Typography style={{marginTop:10}} color = "secondary" type="body1" component="h2"  > {config.asset} </Typography>
+          <Table className={classes.table} >
+            <TableBody>
+              {this.renderTableRowFive(12, 'Cash', 'assetCash', 'Cash',less)}
+              {this.renderTableRowFive(13, 'Plant, Property and Equipment', 'assetPPE', 'Plant..',less)}        
+              {this.renderTableRowFive(14, 'Land', 'assetLand', 'Land',less)}
+              {this.renderAddUP(15,'Total Asset',['assetCash','assetLand','assetPPE'], less)}
+            </TableBody>
+          </Table>   
+          <Typography style={{marginTop:10}} color = "secondary" type="body1" component="h2"  > {config.liabilities} </Typography>
+          <Table className={classes.table} >
+        <TableBody>
+          {this.renderTableRowFive(17, 'Borrwoing', 'liabilitiesBorrwoing', 'Borrwoing',less)}
+          {this.renderAddUP(18,'Total Liabilities',['liabilitiesBorrwoing'], less)}
+        </TableBody>
+      </Table>                                    
+      <Typography style={{marginTop:10}} color = "secondary" type="body1" component="h2"  > Equity </Typography>
+      <Table className={classes.table} >
+        <TableBody>
+          {this.renderTableRowFive(20, 'Share Capital', 'shareCapital', 'Share Capital',less)} 
+        </TableBody>
+      </Table>                       
+      <Typography style={{marginTop:10}} color = "secondary" type="body1" component="h2"  > Retained Earnings </Typography>
+      <Table className={classes.table} >
+        <TableBody>
+        {this.renderTableRowFive(22, 'Beg.', 'beg', 'Beg.',less)}
+        {this.renderTableRowFive(23, 'Net income', 'netIncome', 'Net Income',less)}        
+        {this.renderAddUP(24,'Total Retained Earnings',['beg','netIncome'], less)}
+        {this.renderAddUP(25,'Total Equity',['beg','netIncome','shareCapital'], less)}
+      </TableBody>
+    </Table>                     
+    {productionDifferentiation &&
+        <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  >Demand Curve</Typography>
+    }
+    {productionDifferentiation &&
+        <Table className={classes.table} >
+          <TableBody>
+            {this.renderTableRowFive(27, 'Constant', 'constant', 'Constant',less)}
+            {slopes}
+          </TableBody>
+        </Table>
+    }
+    {(productionDifferentiation && advertisementImplement) &&
+        <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  >Advertising</Typography>
+    }
+    {(productionDifferentiation && advertisementImplement) &&
+        <Table className={classes.table} >
+          <TableBody>
+            {this.renderTableRowFive(29, 'Adv', 'adv', 'Adv',less)}
+          </TableBody>
+        </Table>
+    }
+  </div>
+      )
     }
     renderDescription(){
         let that = this;
@@ -455,6 +561,7 @@ class GameSetting extends React.Component {
         }
         return description;
     }
+    
     render() {
         let classes = this.classes;
         let that = this;
@@ -463,6 +570,8 @@ class GameSetting extends React.Component {
         var playerSettingPage = this.state.playerSetting;
         var generalSettingPage = this.state.generalSetting;
         if(this.state.gameStart){
+            return <Redirect to={"/teacher_gamestart/" + that.state.roomNum} />;
+        }else if (this.state.roomExist){
             return <Redirect to={"/teacher_gamestart/" + that.state.roomNum} />;
         }
         else{
@@ -535,7 +644,10 @@ class GameSetting extends React.Component {
                                         onChange={this.handleSelectOnChange}
                                         input={<Input name="marketType" id="market-type" />}   
                                     >
+                                      {!this.state.productionDifferentiation &&
+
                                         <MenuItem value={'monoply'}>Monoply</MenuItem>
+                                      }
                                         <MenuItem value={'cournot'}>Cournot</MenuItem>
                                         <MenuItem value={'stackelberg'}>Stackelberg</MenuItem>
                                     </Select>
@@ -574,32 +686,36 @@ class GameSetting extends React.Component {
                                     required
                                 />
                                 <br/><br/><br/>
-                                <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > Demand Curve </Typography>
-                                <TextField
-                                    error = {this.state.demandConstantError}
-                                    helperText = {this.state.demandConstantHelper}
-                                    id="demandConstant"
-                                    label="Constant"
-                                    className={classes.textField}
-                                    onChange={this.handleTextOnChange('demandConstant')}
-                                    type="number"
-                                    fullWidth
-                                    margin='normal'
-                                    required
-                                />
-                                <TextField
-                                    error = {this.state.demandSlopeError}
-                                    helperText = {this.state.demandSlopeHelper}
-                                    id="demandSlope"
-                                    label="Slope"
-                                    className={classes.textField}
-                                    onChange={this.handleTextOnChange('demandSlope')}
-                                    type="number"
-                                    fullWidth
-                                    margin='normal'
-                                    required
-                                />
-                                <Typography style={{marginTop:10}} color = "secondary" type="body2" component="p"  > {'Price = ' + this.state.demandConstant + ' + ' + this.state.demandSlope+' Quantity' }</Typography>
+                                {!this.state.productionDifferentiation &&
+                                  <div>
+                                    <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > Demand Curve </Typography>
+                                    <TextField
+                                      error = {this.state.demandConstantError}
+                                      helperText = {this.state.demandConstantHelper}
+                                      id="demandConstant"
+                                      label="Constant"
+                                      className={classes.textField}
+                                      onChange={this.handleTextOnChange('demandConstant')}
+                                      type="number"
+                                      fullWidth
+                                      margin='normal'
+                                      required
+                                    />
+                                    <TextField
+                                      error = {this.state.demandSlopeError}
+                                      helperText = {this.state.demandSlopeHelper}
+                                      id="demandSlope"
+                                      label="Slope"
+                                      className={classes.textField}
+                                      onChange={this.handleTextOnChange('demandSlope')}
+                                      type="number"
+                                      fullWidth
+                                      margin='normal'
+                                      required
+                                    />
+                                    <Typography style={{marginTop:10}} color = "secondary" type="body2" component="p"  > {'Price = ' + this.state.demandConstant + ' + ' + this.state.demandSlope+' Quantity' }</Typography>
+                                  </div>
+                                }
                                 <br/><br/><br/>
                                 <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > Additional Settings </Typography>
                                 {
@@ -618,6 +734,7 @@ class GameSetting extends React.Component {
                                                 checked={this.state[data.stateName]}
                                                 onChange={this.handleSwitchOnChange(data.stateName)}
                                                 aria-label={data.stateName}
+                                                disabled={data.label === 'Advertisement' ? !this.state.productionDifferentiation : false}
                                                 />
                                             }
                                             label={data.label}
@@ -662,7 +779,10 @@ class GameSetting extends React.Component {
                         </Paper>
                         <Button raised color="primary" className={classes.fullWidthButton} type="submit">
                                         Submit
-                                </Button>       
+                        </Button>
+                        <Button raised color="primary" className={classes.fullWidthButton} type="button" onClick={this.defaultValue.bind(this)}>
+                            Default value
+                        </Button>     
                         </form>
 
                         </Grid>

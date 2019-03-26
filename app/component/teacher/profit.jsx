@@ -114,7 +114,6 @@ class Profit extends React.Component {
             <ExpansionPanelDetails> 
             Please Wait
             </ExpansionPanelDetails>
-            
         </ExpansionPanel>
         </Grid>
       )
