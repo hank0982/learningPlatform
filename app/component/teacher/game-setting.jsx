@@ -417,13 +417,11 @@ class GameSetting extends React.Component {
           d.on.roomInfo.increaseInCapacity = increaseInCapacity
 
           if(productionDifferentiation) {
-            d.on.company_1 = company_1 ? {...d.on.company_1, slope1: "-4.32", slope2: "-4.32", slope3: "-4.32", slope4: "-4.32", constant: "1500", adv: "1.1", ...company_1} : d.on.company_1
-
-            d.on.company_2 = company_2 ? {...d.on.company_2, slope1: "-4.32", slope2: "-4.32", slope3: "-4.32", slope4: "-4.32", constant: "1500", adv: "1.2", ...company_2} : d.on.company_2
-
-            d.on.company_3 = company_3 ? {...d.on.company_3, slope1: "-4.32", slope2: "-4.32", slope3: "-4.32", slope4: "-4.32", constant: "1500", adv: "1.3", ...company_3} : d.on.company_3
-
-            d.on.company_4 = company_4 ? {...d.on.company_4, slope1: "-4.32", slope2: "-4.32", slope3: "-4.32", slope4: "-4.32", constant: "1500", adv: "1.4", ...company_4} : d.on.company_4
+            let df = {slope1: "-4.32", slope2: "-4.32", slope3: "-4.32", slope4: "-4.32", constant: "1500", adv: "1.1"}
+            d.on.company_1 = company_1 ? {...d.on.company_1, ...df, ...company_1} : { ...d.on.company_1, ...df }
+            d.on.company_2 = company_2 ? {...d.on.company_2, ...df, ...company_2} : { ...d.on.company_2, ...df }
+            d.on.company_3 = company_3 ? {...d.on.company_3, ...df, ...company_3} : { ...d.on.company_3, ...df }
+            d.on.company_4 = company_4 ? {...d.on.company_4, ...df, ...company_4} : { ...d.on.company_4, ...df }
           }
 
           that.database.database().ref(transferData.roomNum).set(d);
