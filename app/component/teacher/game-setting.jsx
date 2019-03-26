@@ -449,80 +449,96 @@ class GameSetting extends React.Component {
         })
     };
     renderTable(less){
-        let classes = this.classes;
-        let { productionDifferentiation } = this.state
-        return (
-            <div>
-            <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > {config.player_profile_title} </Typography>
-            <Table className={classes.table} >      
-                <TableBody>
-                {this.renderTableRowFive(1, 'Company Name', 'companyName', 'Company Name',less,null)}
-                </TableBody>
-            </Table>
-            <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"> {config.production_cost}</Typography>
-            <Table className={classes.table} >
-                <TableBody>
-                    {this.renderTableRowFive(3, 'Constant', 'constant', 'Constant',less)}
-                    {this.renderTableRowFive(4, 'Coefficient 1', 'coefficientOne', 'Coefficient 1',less)}
-                    {this.renderTableRowFive(5, 'Coefficient 2', 'coefficientTwo', 'Coefficient 2',less)}
-                    {this.renderTableRowFive(6, 'Coefficient 3', 'coefficientThree', 'Coefficient 3',less)}
-                </TableBody>
-            </Table>
-            <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > {config.production_capacity} </Typography>
-            <Table className={classes.table} >
-                <TableBody>
-                    {this.renderTableRowFive(8, 'Maximum', 'maximum', 'Maximum',less)}
-                    {this.renderTableRowFive(9, 'Minimum', 'minimum', 'Minimum',less)}
-                    {this.renderTableRowFive(26, 'Market Interest Rate', 'marketInterestRate', 'Rate',less)} 
-                </TableBody>
-            </Table>
-            <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > {config.balance_sheet}</Typography>
-            <Typography style={{marginTop:10}} color = "secondary" type="body1" component="h2"  > {config.asset} </Typography>
-            <Table className={classes.table} >
-                <TableBody>
-                    {this.renderTableRowFive(12, 'Cash', 'assetCash', 'Cash',less)}
-                    {this.renderTableRowFive(13, 'Plant, Property and Equipment', 'assetPPE', 'Plant..',less)}        
-                    {this.renderTableRowFive(14, 'Land', 'assetLand', 'Land',less)}
-                    {this.renderAddUP(15,'Total Asset',['assetCash','assetLand','assetPPE'], less)}
-                </TableBody>
-            </Table>   
-            <Typography style={{marginTop:10}} color = "secondary" type="body1" component="h2"  > {config.liabilities} </Typography>
-            <Table className={classes.table} >
-                <TableBody>
-                    {this.renderTableRowFive(17, 'Borrwoing', 'liabilitiesBorrwoing', 'Borrwoing',less)}
-                    {this.renderAddUP(18,'Total Liabilities',['liabilitiesBorrwoing'], less)}
-                </TableBody>
-            </Table>                                    
-            <Typography style={{marginTop:10}} color = "secondary" type="body1" component="h2"  > Equity </Typography>
-            <Table className={classes.table} >
-                <TableBody>
-                    {this.renderTableRowFive(20, 'Share Capital', 'shareCapital', 'Share Capital',less)} 
-                </TableBody>
-            </Table>                       
-            <Typography style={{marginTop:10}} color = "secondary" type="body1" component="h2"  > Retained Earnings </Typography>
-            <Table className={classes.table} >
-                <TableBody>
-                    {this.renderTableRowFive(22, 'Beg.', 'beg', 'Beg.',less)}
-                    {this.renderTableRowFive(23, 'Net income', 'netIncome', 'Net Income',less)}        
-                    {this.renderAddUP(24,'Total Retained Earnings',['beg','netIncome'], less)}
-                    {this.renderAddUP(25,'Total Equity',['beg','netIncome','shareCapital'], less)}
-                </TableBody>
-            </Table>                     
-            {productionDifferentiation &&
-              <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > Demand Curve</Typography>
-            }
-            {productionDifferentiation &&
-              <Table className={classes.table} >
-                  <TableBody>
-                      {this.renderTableRowFive(27, 'Constant', 'constant', 'Constant',less)}
-                      {this.renderTableRowFive(28, 'Slope', 'slope', 'Slope',less)}
-                  </TableBody>
-              </Table>
-            }
-                                
-                                
-            </div>
-        )
+      let classes = this.classes;
+      let { productionDifferentiation, advertisementImplement, firmNum } = this.state
+      let slopes = []
+
+      if(productionDifferentiation === true) {
+        for(let i = 1; i <= firmNum; i++) {
+          slopes.push(this.renderTableRowFive(`slope28-${i}`, `Slope${i}`, `slope${i}`, `Slope${i}`,less))
+        }
+      }
+
+      return (
+        <div>
+          <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > {config.player_profile_title} </Typography>
+          <Table className={classes.table} >      
+            <TableBody>
+              {this.renderTableRowFive(1, 'Company Name', 'companyName', 'Company Name',less,null)}
+            </TableBody>
+          </Table>
+          <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"> {config.production_cost}</Typography>
+          <Table className={classes.table} >
+            <TableBody>
+              {this.renderTableRowFive(3, 'Constant', 'constant', 'Constant',less)}
+              {this.renderTableRowFive(4, 'Coefficient 1', 'coefficientOne', 'Coefficient 1',less)}
+              {this.renderTableRowFive(5, 'Coefficient 2', 'coefficientTwo', 'Coefficient 2',less)}
+              {this.renderTableRowFive(6, 'Coefficient 3', 'coefficientThree', 'Coefficient 3',less)}
+            </TableBody>
+          </Table>
+          <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > {config.production_capacity} </Typography>
+          <Table className={classes.table} >
+            <TableBody>
+              {this.renderTableRowFive(8, 'Maximum', 'maximum', 'Maximum',less)}
+              {this.renderTableRowFive(9, 'Minimum', 'minimum', 'Minimum',less)}
+              {this.renderTableRowFive(26, 'Market Interest Rate', 'marketInterestRate', 'Rate',less)} 
+            </TableBody>
+          </Table>
+          <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > {config.balance_sheet}</Typography>
+          <Typography style={{marginTop:10}} color = "secondary" type="body1" component="h2"  > {config.asset} </Typography>
+          <Table className={classes.table} >
+            <TableBody>
+              {this.renderTableRowFive(12, 'Cash', 'assetCash', 'Cash',less)}
+              {this.renderTableRowFive(13, 'Plant, Property and Equipment', 'assetPPE', 'Plant..',less)}        
+              {this.renderTableRowFive(14, 'Land', 'assetLand', 'Land',less)}
+              {this.renderAddUP(15,'Total Asset',['assetCash','assetLand','assetPPE'], less)}
+            </TableBody>
+          </Table>   
+          <Typography style={{marginTop:10}} color = "secondary" type="body1" component="h2"  > {config.liabilities} </Typography>
+          <Table className={classes.table} >
+        <TableBody>
+          {this.renderTableRowFive(17, 'Borrwoing', 'liabilitiesBorrwoing', 'Borrwoing',less)}
+          {this.renderAddUP(18,'Total Liabilities',['liabilitiesBorrwoing'], less)}
+        </TableBody>
+      </Table>                                    
+      <Typography style={{marginTop:10}} color = "secondary" type="body1" component="h2"  > Equity </Typography>
+      <Table className={classes.table} >
+        <TableBody>
+          {this.renderTableRowFive(20, 'Share Capital', 'shareCapital', 'Share Capital',less)} 
+        </TableBody>
+      </Table>                       
+      <Typography style={{marginTop:10}} color = "secondary" type="body1" component="h2"  > Retained Earnings </Typography>
+      <Table className={classes.table} >
+        <TableBody>
+        {this.renderTableRowFive(22, 'Beg.', 'beg', 'Beg.',less)}
+        {this.renderTableRowFive(23, 'Net income', 'netIncome', 'Net Income',less)}        
+        {this.renderAddUP(24,'Total Retained Earnings',['beg','netIncome'], less)}
+        {this.renderAddUP(25,'Total Equity',['beg','netIncome','shareCapital'], less)}
+      </TableBody>
+    </Table>                     
+    {productionDifferentiation &&
+        <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  >Demand Curve</Typography>
+    }
+    {productionDifferentiation &&
+        <Table className={classes.table} >
+          <TableBody>
+            {this.renderTableRowFive(27, 'Constant', 'constant', 'Constant',less)}
+            {slopes}
+          </TableBody>
+        </Table>
+    }
+    {(productionDifferentiation && advertisementImplement) &&
+        <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  >Advertising</Typography>
+    }
+    {(productionDifferentiation && advertisementImplement) &&
+        <Table className={classes.table} >
+          <TableBody>
+            {this.renderTableRowFive(29, 'Adv', 'adv', 'Adv',less)}
+          </TableBody>
+        </Table>
+    }
+  </div>
+      )
     }
     renderDescription(){
         let that = this;
