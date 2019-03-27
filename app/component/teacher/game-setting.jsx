@@ -54,16 +54,18 @@ class GameSetting extends React.Component {
     constructor(props) {
         super(props);
         var initPlayerSettingState = {
-                firmNum: 1,
-                roundNum: 0,
-                demandConstant: 0,
-                demandSlope: 0,
-                increaseInCapacity: false,
-                advertisementImplement: false,
-                taxComposition: false,
-                productionDifferentiation: false,
-                leader: 0,
-                marketType: 'monoply',
+          firmNum: 1,
+          roundNum: 0,
+          demandConstant: 0,
+          demandSlope: 0,
+          increaseInCapacity: false,
+          advertisementImplement: false,
+          taxComposition: false,
+          productionDifferentiation: false,
+          leader: 0,
+          marketType: 'monoply',
+          tax1: "0",
+          tax2: "0",
         }
         this.state = {
             ...initPlayerSettingState,
@@ -316,6 +318,7 @@ class GameSetting extends React.Component {
         let that = this;
         let printerror = false;
         var companys = {};
+        let { tax1, tax2 } = this.state
         var dataTypeInCompany = ['companyDescription','marketInterestRate','constant','coefficientOne','coefficientTwo','coefficientThree','maximum','minimum','assetCash','assetPPE','assetLand','liabilitiesBorrwoing','shareCapital','beg','netIncome']
         for(let i = 1; i <= that.state.firmNum; i++){
             if(!that.state['company_'+i]){
@@ -334,21 +337,25 @@ class GameSetting extends React.Component {
 
         }
         var roomInfo = {
-            roomNum: this.state.roomNum,
-            firmNum: this.state.firmNum,
-            marketType: this.state.marketType,
-            roundNum: this.state.roundNum,
-            constant: this.state.demandConstant, //
-            slope: this.state.demandSlope, //
-            increaseInCapacity: this.state.increaseInCapacity,
-            advertisementImplement: this.state.advertisementImplement,
-            taxComposition: this.state.taxComposition,
-            gameRule: this.state.gameRule,
-            goalOfFirms: this.state.goalOfFirms,
-            marketDescription: this.state.marketDescription,
-            descriptionOfFirms: this.state.descriptionOfFirms,
-            productionDifferentiation: this.state.productionDifferentiation
+          roomNum: this.state.roomNum,
+          firmNum: this.state.firmNum,
+          marketType: this.state.marketType,
+          roundNum: this.state.roundNum,
+          constant: this.state.demandConstant, //
+          slope: this.state.demandSlope, //
+          increaseInCapacity: this.state.increaseInCapacity,
+          advertisementImplement: this.state.advertisementImplement,
+          taxComposition: this.state.taxComposition,
+          gameRule: this.state.gameRule,
+          goalOfFirms: this.state.goalOfFirms,
+          marketDescription: this.state.marketDescription,
+          descriptionOfFirms: this.state.descriptionOfFirms,
+          productionDifferentiation: this.state.productionDifferentiation,
+          tax1: tax1,
+          tax2: tax2,
         }
+      console.log(roomInfo);
+      return
         if(roomInfo.marketType == 'stackelberg'){
             roomInfo = {
                 ...roomInfo,
@@ -569,6 +576,8 @@ class GameSetting extends React.Component {
         var companyPage = this.state.companyDescription;
         var playerSettingPage = this.state.playerSetting;
         var generalSettingPage = this.state.generalSetting;
+        let { taxComposition } = this.state
+
         if(this.state.gameStart){
             return <Redirect to={"/teacher_gamestart/" + that.state.roomNum} />;
         }else if (this.state.roomExist){
@@ -714,6 +723,35 @@ class GameSetting extends React.Component {
                                       required
                                     />
                                     <Typography style={{marginTop:10}} color = "secondary" type="body2" component="p"  > {'Price = ' + this.state.demandConstant + ' + ' + this.state.demandSlope+' Quantity' }</Typography>
+                                  </div>
+                                }
+                                {(taxComposition === true) &&
+                                  <div>
+                                    <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  >Tax</Typography>
+                                    <TextField
+                                      error = {this.state.demandConstantError}
+                                      helperText = {this.state.demandConstantHelper}
+                                      id="tax1"
+                                      label="Tax1"
+                                      className={classes.textField}
+                                      onChange={this.handleTextOnChange('tax1')}
+                                      type="number"
+                                      fullWidth
+                                      margin='normal'
+                                      required
+                                    />
+                                    <TextField
+                                      error = {this.state.demandSlopeError}
+                                      helperText = {this.state.demandSlopeHelper}
+                                      id="tax2"
+                                      label="Tax2"
+                                      className={classes.textField}
+                                      onChange={this.handleTextOnChange('tax2')}
+                                      type="number"
+                                      fullWidth
+                                      margin='normal'
+                                      required
+                                    />
                                   </div>
                                 }
                                 <br/><br/><br/>
