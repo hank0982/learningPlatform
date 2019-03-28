@@ -318,23 +318,28 @@ class GameSetting extends React.Component {
         let that = this;
         let printerror = false;
         var companys = {};
-        let { tax1, tax2 } = this.state
+        let { tax1, tax2, advertisementImplement, productionDifferentiation, firmNum } = this.state
         var dataTypeInCompany = ['companyDescription','marketInterestRate','constant','coefficientOne','coefficientTwo','coefficientThree','maximum','minimum','assetCash','assetPPE','assetLand','liabilitiesBorrwoing','shareCapital','beg','netIncome']
         for(let i = 1; i <= that.state.firmNum; i++){
-            if(!that.state['company_'+i]){
-                printerror = true;
-                break;
-            }else{
-                let company = that.state['company_'+i]
-                companys['company_'+i] = company;
-                dataTypeInCompany.map(function(type){
-                    if(!company[type]){
-                        printerror = true;
-                        return;
-                    }
-                })
+          if(!that.state['company_'+i]){
+            printerror = true;
+            break;
+          }else{
+            let company = that.state['company_'+i]
+            let slopes = {}
+            if(productionDifferentiation === true) {
+              Object.keys(company).forEach((key) => {
+                if(key.includes('slope')) slopes[key] = company[key]
+              })
             }
-
+            companys['company_'+i] = {...company, ...slopes};
+            dataTypeInCompany.map(function(type){
+              if(!company[type]){
+                printerror = true;
+                return;
+              }
+            })
+          }
         }
         var roomInfo = {
           roomNum: this.state.roomNum,
@@ -344,18 +349,16 @@ class GameSetting extends React.Component {
           constant: this.state.demandConstant, //
           slope: this.state.demandSlope, //
           increaseInCapacity: this.state.increaseInCapacity,
-          advertisementImplement: this.state.advertisementImplement,
+          advertisementImplement: advertisementImplement,
           taxComposition: this.state.taxComposition,
           gameRule: this.state.gameRule,
           goalOfFirms: this.state.goalOfFirms,
           marketDescription: this.state.marketDescription,
           descriptionOfFirms: this.state.descriptionOfFirms,
-          productionDifferentiation: this.state.productionDifferentiation,
+          productionDifferentiation: productionDifferentiation,
           tax1: tax1,
           tax2: tax2,
         }
-      console.log(roomInfo);
-      return
         if(roomInfo.marketType == 'stackelberg'){
             roomInfo = {
                 ...roomInfo,
@@ -368,7 +371,7 @@ class GameSetting extends React.Component {
             timeStamp: new Date(),
             roomNum: this.state.roomNum
         };
-        if(transferData.roomInfo.constant && transferData.roomInfo.firmNum && transferData.roomInfo.slope && transferData.roomInfo.roundNum && !printerror){
+        if((transferData.roomInfo.constant || productionDifferentiation) && transferData.roomInfo.firmNum && (transferData.roomInfo.slope || productionDifferentiation) && transferData.roomInfo.roundNum && !printerror){
             this.socket.emit('GAME_SETTING',  transferData);
             this.database.database().ref(transferData.roomInfo.roomNum).child('on').set(transferData, function(err){
                 if(err){
