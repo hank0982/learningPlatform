@@ -8,6 +8,7 @@ import ProductionQuantity from './production-quantity';
 import { querystring } from '@firebase/util';
 import Button from 'material-ui/Button';
 import Profit from './profit';
+import Advertisment from './advertisment';
 import ExpandMoreIcon from 'material-ui-icons/ExpandMore';
 import AccumProfit from './accumulateProfit';
 import FirmPerform from './firm-performance';
@@ -96,6 +97,10 @@ class EndSession extends React.Component {
                     <Typography type="headline" gutterBottom>Each Firm's Profit (By Round)</Typography>
                 </Grid> 
                 <Profit roomNum = {this.roomNum} database = {this.database}/>
+                <Grid item xs = {10} style={{marginTop:10}}>
+                    <Typography type="headline" gutterBottom>Advertisment Cost</Typography>
+                </Grid> 
+                <Advertisment roomNum = {this.roomNum} database = {this.database}/>
                 <Grid item xs = {10} style={{marginTop:10}}>
                     <Typography type="headline" gutterBottom>Each Firm's Profit (By Accumulation)</Typography>
                 </Grid> 
