@@ -314,99 +314,102 @@ class GameSetting extends React.Component {
         )
     };
     handleSubmit = ev =>{
-        ev.preventDefault();
-        let that = this;
-        let printerror = false;
-        var companys = {};
-        let { tax1, tax2, advertisementImplement, productionDifferentiation, firmNum } = this.state
-        var dataTypeInCompany = ['companyDescription','marketInterestRate','constant','coefficientOne','coefficientTwo','coefficientThree','maximum','minimum','assetCash','assetPPE','assetLand','liabilitiesBorrwoing','shareCapital','beg','netIncome']
-        for(let i = 1; i <= that.state.firmNum; i++){
-          if(!that.state['company_'+i]){
-            printerror = true;
-            break;
-          }else{
-            let company = that.state['company_'+i]
-            let slopes = {}
-            if(productionDifferentiation === true) {
-              Object.keys(company).forEach((key) => {
-                if(key.includes('slope')) slopes[key] = company[key]
-              })
-            }
-            companys['company_'+i] = {...company, ...slopes};
-            dataTypeInCompany.map(function(type){
-              if(!company[type]){
-                printerror = true;
-                return;
-              }
+      ev.preventDefault();
+      let that = this;
+      let printerror = false;
+      var companys = {};
+      let { tax1, tax2, advertisementImplement, productionDifferentiation, firmNum } = this.state
+      var dataTypeInCompany = ['companyDescription','marketInterestRate','constant','coefficientOne','coefficientTwo','coefficientThree','maximum','minimum','assetCash','assetPPE','assetLand','liabilitiesBorrwoing','shareCapital','beg','netIncome']
+
+      for(let i = 1; i <= that.state.firmNum; i++){
+        if(!that.state['company_'+i]){
+          printerror = true;
+          break;
+        }else{
+          let company = that.state['company_'+i]
+          let slopes = {}
+          let advs = {}
+          if(productionDifferentiation === true) {
+            Object.keys(company).forEach((key) => {
+              if(key.includes('slope')) slopes[key] = company[key]
+              if(advertisementImplement === true && key.includes('adv')) advs[key] = company[key]
             })
           }
-        }
-        var roomInfo = {
-          roomNum: this.state.roomNum,
-          firmNum: this.state.firmNum,
-          marketType: this.state.marketType,
-          roundNum: this.state.roundNum,
-          constant: this.state.demandConstant, //
-          slope: this.state.demandSlope, //
-          increaseInCapacity: this.state.increaseInCapacity,
-          advertisementImplement: advertisementImplement,
-          taxComposition: this.state.taxComposition,
-          gameRule: this.state.gameRule,
-          goalOfFirms: this.state.goalOfFirms,
-          marketDescription: this.state.marketDescription,
-          descriptionOfFirms: this.state.descriptionOfFirms,
-          productionDifferentiation: productionDifferentiation,
-          tax1: tax1,
-          tax2: tax2,
-        }
-        if(roomInfo.marketType == 'stackelberg'){
-            roomInfo = {
-                ...roomInfo,
-                leader: this.state.leader
+          companys['company_'+i] = {...company, ...slopes, ...advs};
+          dataTypeInCompany.map(function(type){
+            if(!company[type]){
+              printerror = true;
+              return;
             }
+          })
         }
-        var transferData = {
-            ...companys,
-            roomInfo: roomInfo,
-            timeStamp: new Date(),
-            roomNum: this.state.roomNum
-        };
-        if((transferData.roomInfo.constant || productionDifferentiation) && transferData.roomInfo.firmNum && (transferData.roomInfo.slope || productionDifferentiation) && transferData.roomInfo.roundNum && !printerror){
-            this.socket.emit('GAME_SETTING',  transferData);
-            this.database.database().ref(transferData.roomInfo.roomNum).child('on').set(transferData, function(err){
+      }
+      var roomInfo = {
+        roomNum: this.state.roomNum,
+        firmNum: this.state.firmNum,
+        marketType: this.state.marketType,
+        roundNum: this.state.roundNum,
+        constant: this.state.demandConstant, //
+        slope: this.state.demandSlope, //
+        increaseInCapacity: this.state.increaseInCapacity,
+        advertisementImplement: advertisementImplement,
+        taxComposition: this.state.taxComposition,
+        gameRule: this.state.gameRule,
+        goalOfFirms: this.state.goalOfFirms,
+        marketDescription: this.state.marketDescription,
+        descriptionOfFirms: this.state.descriptionOfFirms,
+        productionDifferentiation: productionDifferentiation,
+        tax1: tax1,
+        tax2: tax2,
+      }
+      if(roomInfo.marketType == 'stackelberg'){
+        roomInfo = {
+          ...roomInfo,
+          leader: this.state.leader
+        }
+      }
+      var transferData = {
+        ...companys,
+        roomInfo: roomInfo,
+        timeStamp: new Date(),
+        roomNum: this.state.roomNum
+      };
+      if((transferData.roomInfo.constant || productionDifferentiation) && transferData.roomInfo.firmNum && (transferData.roomInfo.slope || productionDifferentiation) && transferData.roomInfo.roundNum && !printerror){
+        this.socket.emit('GAME_SETTING',  transferData);
+        this.database.database().ref(transferData.roomInfo.roomNum).child('on').set(transferData, function(err){
+          if(err){
+            console.log(err);
+          }else{
+            that.database.database().ref(transferData.roomInfo.roomNum).child('on').child('console').push().set(
+              {time:  new Date().toLocaleString('en-GB', {timeZone:'Asia/Hong_Kong'}), message: 'Successfully created Room.'+transferData.roomNum},
+              function(err){
                 if(err){
-                    console.log(err);
-                }else{
-                    that.database.database().ref(transferData.roomInfo.roomNum).child('on').child('console').push().set(
-                        {time:  new Date().toLocaleString('en-GB', {timeZone:'Asia/Hong_Kong'}), message: 'Successfully created Room.'+transferData.roomNum},
-                        function(err){
-                            if(err){
-                                console.log(err);
-                            }
-                        }
-                    ).then(function(){
-                        that.database.database().ref(transferData.roomInfo.roomNum).child('on').child('round').set({
-                            currentRound: 1,
-                            roundStarted: false,
-                            previousRoundData: null,
-                            endroundbutton: true,
-                        }).then(function(){
-                                that.setState({
-                                    gameStart: true
-                                })
-                            }
-                        )
-                    })   
+                  console.log(err);
                 }
-            }
-            );
-        }else{
-            console.log(roomInfo)
-            that.setState({
-                open: true,
-                snackbarMessage: 'WARNING! Please provide sufficient data'
-            })
+              }
+            ).then(function(){
+              that.database.database().ref(transferData.roomInfo.roomNum).child('on').child('round').set({
+                currentRound: 1,
+                roundStarted: false,
+                previousRoundData: null,
+                endroundbutton: true,
+              }).then(function(){
+                that.setState({
+                  gameStart: true
+                })
+              }
+              )
+            })   
+          }
         }
+        );
+      }else{
+        console.log(roomInfo)
+        that.setState({
+          open: true,
+          snackbarMessage: 'WARNING! Please provide sufficient data'
+        })
+      }
     };
     defaultValue(){
         var transferData = {
@@ -427,7 +430,8 @@ class GameSetting extends React.Component {
           d.on.roomInfo.increaseInCapacity = increaseInCapacity
 
           if(productionDifferentiation) {
-            let df = {slope1: "-4.32", slope2: "-4.32", slope3: "-4.32", slope4: "-4.32", constant: "1500", adv: "1.1"}
+            let df = {slope1: "-4.32", slope2: "-4.32", slope3: "-4.32", slope4: "-4.32", constant: "1500"}
+            if(advertisementImplement) df = {...df, adver1: "1.1", adver2: "1.1", adver3: "1.1", adver4: "1.1"}
             d.on.company_1 = company_1 ? {...d.on.company_1, ...df, ...company_1} : { ...d.on.company_1, ...df }
             d.on.company_2 = company_2 ? {...d.on.company_2, ...df, ...company_2} : { ...d.on.company_2, ...df }
             d.on.company_3 = company_3 ? {...d.on.company_3, ...df, ...company_3} : { ...d.on.company_3, ...df }
@@ -463,10 +467,16 @@ class GameSetting extends React.Component {
       let classes = this.classes;
       let { productionDifferentiation, advertisementImplement, firmNum } = this.state
       let slopes = []
+      let advs = []
 
       if(productionDifferentiation === true) {
         for(let i = 1; i <= firmNum; i++) {
           slopes.push(this.renderTableRowFive(`slope28-${i}`, `Slope${i}`, `slope${i}`, `Slope${i}`,less))
+
+          if(advertisementImplement === true) {
+            console.log(i);
+            advs.push(this.renderTableRowFive(`adv29-${i}`, `Ad Slope${i}`, `adver${i}`, `Ad Slope${i}`,less))
+          }
         }
       }
 
@@ -544,7 +554,7 @@ class GameSetting extends React.Component {
     {(productionDifferentiation && advertisementImplement) &&
         <Table className={classes.table} >
           <TableBody>
-            {this.renderTableRowFive(29, 'Adv', 'adv', 'Adv',less)}
+            {advs}
           </TableBody>
         </Table>
     }
