@@ -23,6 +23,7 @@ import { Redirect } from 'react-router';
 
 // other components
 import ApplicationBar from '../AppBar'
+import CostFunction from './cost_function'
 
 // config file
 import config from "../../config"
@@ -68,12 +69,13 @@ class GameSetting extends React.Component {
           tax2: "0",
         }
         this.state = {
-            ...initPlayerSettingState,
-            roomNum: this.props.match.params.id,
-            playerSetting: false,
-            generalSetting: false,
-            companyDescription: false,
-            gameStart: false
+          ...initPlayerSettingState,
+          roomNum: this.props.match.params.id,
+          playerSetting: false,
+          generalSetting: false,
+          companyDescription: false,
+          gameStart: false,
+          costFunction: true,
         }
         let that = this;
         this.classes = props.classes;
@@ -318,7 +320,7 @@ class GameSetting extends React.Component {
       let that = this;
       let printerror = false;
       var companys = {};
-      let { tax1, tax2, advertisementImplement, productionDifferentiation, firmNum } = this.state
+      let { tax1, tax2, advertisementImplement, productionDifferentiation, firmNum, increaseInCapacity } = this.state
       var dataTypeInCompany = ['companyDescription','marketInterestRate','constant','coefficientOne','coefficientTwo','coefficientThree','maximum','minimum','assetCash','assetPPE','assetLand','liabilitiesBorrwoing','shareCapital','beg','netIncome']
 
       for(let i = 1; i <= that.state.firmNum; i++){
@@ -329,7 +331,7 @@ class GameSetting extends React.Component {
           let company = that.state['company_'+i]
           let slopes = {}
           let advs = {}
-          if(productionDifferentiation === true) {
+          if(productionDifferentiation === true && !increaseInCapacity) {
             Object.keys(company).forEach((key) => {
               if(key.includes('slope')) slopes[key] = company[key]
               if(advertisementImplement === true && key.includes('adv')) advs[key] = company[key]
@@ -465,7 +467,7 @@ class GameSetting extends React.Component {
     };
     renderTable(less){
       let classes = this.classes;
-      let { productionDifferentiation, advertisementImplement, firmNum } = this.state
+      let { productionDifferentiation, advertisementImplement, firmNum, increaseInCapacity } = this.state
       let slopes = []
       let advs = []
 
@@ -537,10 +539,10 @@ class GameSetting extends React.Component {
         {this.renderAddUP(25,'Total Equity',['beg','netIncome','shareCapital'], less)}
       </TableBody>
     </Table>                     
-    {productionDifferentiation &&
+    {(productionDifferentiation && !increaseInCapacity) &&
         <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  >Demand Curve</Typography>
     }
-    {productionDifferentiation &&
+    {(productionDifferentiation && !increaseInCapacity) &&
         <Table className={classes.table} >
           <TableBody>
             {this.renderTableRowFive(27, 'Constant', 'constant', 'Constant',less)}
@@ -583,13 +585,21 @@ class GameSetting extends React.Component {
     }
     
     render() {
-        let classes = this.classes;
-        let that = this;
-        var gameSettingPage = !this.state.playerSetting && !this.state.companyDescription && !this.state.generalSetting;
-        var companyPage = this.state.companyDescription;
-        var playerSettingPage = this.state.playerSetting;
-        var generalSettingPage = this.state.generalSetting;
-        let { taxComposition } = this.state
+      let classes = this.classes;
+      let that = this;
+      let {
+        firmNum,
+        productionDifferentiation,
+        taxComposition,
+        increaseInCapacity,
+        companyDescription:companyPage,
+        playerSetting:playerSettingPage,
+        generalSetting:generalSettingPage,
+        costFunction:costFunctionPage
+      } = this.state
+      let gameSettingPage = !playerSettingPage && !companyPage && !generalSettingPage && !costFunctionPage;
+
+      console.log(this.state);
 
         if(this.state.gameStart){
             return <Redirect to={"/teacher_gamestart/" + that.state.roomNum} />;
@@ -611,7 +621,7 @@ class GameSetting extends React.Component {
                         <Grid item xs = {10}>
                         <form onSubmit={this.handleSubmit} className={classes.container} noValidate autoComplete="off">
                             <FormControlLabel
-                                style = {{display: ( companyPage || generalSettingPage )? 'none': null}}
+                                style = {{display: ( companyPage || generalSettingPage || costFunctionPage)? 'none': null}}
                                 control={
                                     <Switch
                                     checked={this.state.playerSetting}
@@ -622,7 +632,7 @@ class GameSetting extends React.Component {
                                 label="Player Profile"
                             />
                             <FormControlLabel
-                                style = {{display: (generalSettingPage || playerSettingPage) ? 'none':null}}
+                                style = {{display: (generalSettingPage || playerSettingPage || costFunctionPage) ? 'none':null}}
                                 control={
                                     <Switch
                                     checked={this.state.companyDescription}
@@ -633,7 +643,7 @@ class GameSetting extends React.Component {
                                 label="Company Description"
                             />
                             <FormControlLabel
-                                style = {{display: (companyPage || playerSettingPage) ? 'none':null}}
+                                style = {{display: (companyPage || playerSettingPage || costFunctionPage) ? 'none':null}}
                                 control={
                                     <Switch
                                     checked={this.state.generalSetting}
@@ -642,6 +652,17 @@ class GameSetting extends React.Component {
                                     />
                                 }
                                 label="General Setting"
+                            />
+                            <FormControlLabel
+                                style = {{display: (companyPage || playerSettingPage || generalSettingPage) ? 'none':null}}
+                                control={
+                                    <Switch
+                                    checked={costFunctionPage}
+                                    onChange={this.handleSwitchOnChange('costFunction')}
+                                    aria-label="costFunction"
+                                    />
+                                }
+                                label="Cost Function"
                             />
                         <Paper style = {{display:gameSettingPage?'block': 'none'}} className = { classes.root } elevation = { 4 } height = '100%' >
                                 <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > Player Setting </Typography>
@@ -785,7 +806,7 @@ class GameSetting extends React.Component {
                                                 checked={this.state[data.stateName]}
                                                 onChange={this.handleSwitchOnChange(data.stateName)}
                                                 aria-label={data.stateName}
-                                                disabled={data.label === 'Advertisement' ? !this.state.productionDifferentiation : false}
+                                                disabled={(data.label === 'Advertisement' ? !productionDifferentiation : false) || (data.label !== 'Production Technology' ? increaseInCapacity : false)}
                                                 />
                                             }
                                             label={data.label}
@@ -804,6 +825,9 @@ class GameSetting extends React.Component {
                         <Paper style = {{display:this.state.playerSetting? this.state.firmNum > 5 ? 'block':'none':'none'}} className = { classes.root } elevation = { 4 } height = '100%' >
                                 {this.renderTable(false)}
                         </Paper>    
+                        {costFunctionPage &&
+                          <CostFunction {...this.state}/>
+                        }
                         <Paper style = {{display: generalSettingPage? 'block':'none'}} className = { classes.root } elevation = { 4 } height = '100%'>
                             {
                             [
