@@ -75,7 +75,7 @@ class GameSetting extends React.Component {
           generalSetting: false,
           companyDescription: false,
           gameStart: false,
-          costFunction: true,
+          costFunction: false,
         }
         let that = this;
         this.classes = props.classes;
@@ -144,6 +144,8 @@ class GameSetting extends React.Component {
                 />
             )  
         };
+
+      this.handleStateChange = this.handleStateChange.bind(this)
     }
     componentDidMount(){
         var that = this;
@@ -192,6 +194,11 @@ class GameSetting extends React.Component {
         }
         
     };
+    handleStateChange(name, value) {
+      this.setState({
+        [name]: value
+      });
+    }
     handleCompanyOnChange = company => event => {
         let that = this;
         let name = company.name;
@@ -320,7 +327,15 @@ class GameSetting extends React.Component {
       let that = this;
       let printerror = false;
       var companys = {};
-      let { tax1, tax2, advertisementImplement, productionDifferentiation, firmNum, increaseInCapacity } = this.state
+      let { 
+        tax1,
+        tax2,
+        advertisementImplement,
+        productionDifferentiation,
+        firmNum,
+        increaseInCapacity,
+        investmentCostA,
+        investmentCostB } = this.state
       var dataTypeInCompany = ['companyDescription','marketInterestRate','constant','coefficientOne','coefficientTwo','coefficientThree','maximum','minimum','assetCash','assetPPE','assetLand','liabilitiesBorrwoing','shareCapital','beg','netIncome']
 
       for(let i = 1; i <= that.state.firmNum; i++){
@@ -331,13 +346,15 @@ class GameSetting extends React.Component {
           let company = that.state['company_'+i]
           let slopes = {}
           let advs = {}
-          if(productionDifferentiation === true && !increaseInCapacity) {
-            Object.keys(company).forEach((key) => {
-              if(key.includes('slope')) slopes[key] = company[key]
-              if(advertisementImplement === true && key.includes('adv')) advs[key] = company[key]
-            })
-          }
-          companys['company_'+i] = {...company, ...slopes, ...advs};
+          // if(increaseInCapacity) {
+          // }
+          // else if(productionDifferentiation === true) {
+            // Object.keys(company).forEach((key) => {
+              // if(key.includes('slope')) slopes[key] = company[key]
+              // if(advertisementImplement === true && key.includes('adv')) advs[key] = company[key]
+            // })
+          // }
+          companys['company_'+i] = { ...company };
           dataTypeInCompany.map(function(type){
             if(!company[type]){
               printerror = true;
@@ -363,6 +380,8 @@ class GameSetting extends React.Component {
         productionDifferentiation: productionDifferentiation,
         tax1: tax1,
         tax2: tax2,
+        investmentCostA: investmentCostA || 0,
+        investmentCostB: investmentCostB || 0,
       }
       if(roomInfo.marketType == 'stackelberg'){
         roomInfo = {
@@ -406,7 +425,6 @@ class GameSetting extends React.Component {
         }
         );
       }else{
-        console.log(roomInfo)
         that.setState({
           open: true,
           snackbarMessage: 'WARNING! Please provide sufficient data'
@@ -419,7 +437,6 @@ class GameSetting extends React.Component {
             roomNum: this.state.roomNum
         };
       let {taxComposition, advertisementImplement, productionDifferentiation, increaseInCapacity, company_1, company_2, company_3, company_4} = this.state
-      console.log(this.state);
         var that = this;
         this.database.database().ref(1997083101).once('value', function(data){
           var d = data.val();
@@ -476,7 +493,6 @@ class GameSetting extends React.Component {
           slopes.push(this.renderTableRowFive(`slope28-${i}`, `Slope${i}`, `slope${i}`, `Slope${i}`,less))
 
           if(advertisementImplement === true) {
-            console.log(i);
             advs.push(this.renderTableRowFive(`adv29-${i}`, `Ad Slope${i}`, `adver${i}`, `Ad Slope${i}`,less))
           }
         }
@@ -599,8 +615,6 @@ class GameSetting extends React.Component {
       } = this.state
       let gameSettingPage = !playerSettingPage && !companyPage && !generalSettingPage && !costFunctionPage;
 
-      console.log(this.state);
-
         if(this.state.gameStart){
             return <Redirect to={"/teacher_gamestart/" + that.state.roomNum} />;
         }else if (this.state.roomExist){
@@ -663,6 +677,7 @@ class GameSetting extends React.Component {
                                     />
                                 }
                                 label="Cost Function"
+                                disabled={!increaseInCapacity}
                             />
                         <Paper style = {{display:gameSettingPage?'block': 'none'}} className = { classes.root } elevation = { 4 } height = '100%' >
                                 <Typography style={{marginTop:10}} color = "secondary" type="title" component="h2"  > Player Setting </Typography>
@@ -826,7 +841,12 @@ class GameSetting extends React.Component {
                                 {this.renderTable(false)}
                         </Paper>    
                         {costFunctionPage &&
-                          <CostFunction {...this.state}/>
+                          <CostFunction 
+                            {...this.state}
+                            handleCompanyChange={this.handleCompanyOnChange}
+                            handleStateChange={this.handleStateChange}
+                            handleTextChange={this.handleTextOnChange}
+                          />
                         }
                         <Paper style = {{display: generalSettingPage? 'block':'none'}} className = { classes.root } elevation = { 4 } height = '100%'>
                             {
