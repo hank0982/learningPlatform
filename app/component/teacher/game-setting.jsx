@@ -432,55 +432,77 @@ class GameSetting extends React.Component {
       }
     };
     defaultValue(){
-        var transferData = {
-            timeStamp: new Date(),
-            roomNum: this.state.roomNum
-        };
-      let {taxComposition, advertisementImplement, productionDifferentiation, increaseInCapacity, company_1, company_2, company_3, company_4} = this.state
-        var that = this;
-        this.database.database().ref(1997083101).once('value', function(data){
-          var d = data.val();
-          d.on.roomNum = transferData.roomNum;
-          d.roomNum = transferData.roomNum;
-          d.on.roomInfo.roomNum = transferData.roomNum;
-          d.on.roomInfo.taxComposition = taxComposition
-          d.on.roomInfo.advertisementImplement = advertisementImplement
-          d.on.roomInfo.productionDifferentiation = productionDifferentiation
-          d.on.roomInfo.increaseInCapacity = increaseInCapacity
+      var transferData = {
+        timeStamp: new Date(),
+        roomNum: this.state.roomNum
+      };
+      let { taxComposition, advertisementImplement, productionDifferentiation, increaseInCapacity, company_1, company_2, company_3, company_4 } = this.state
+      var that = this;
+      this.database.database().ref(1997083101).once('value', function(data){
+        var d = data.val();
+        d.on.roomNum = transferData.roomNum;
+        d.roomNum = transferData.roomNum;
+        d.on.roomInfo.roomNum = transferData.roomNum;
+        d.on.roomInfo.taxComposition = taxComposition
+        d.on.roomInfo.advertisementImplement = advertisementImplement
+        d.on.roomInfo.productionDifferentiation = productionDifferentiation
+        d.on.roomInfo.increaseInCapacity = increaseInCapacity
 
-          if(productionDifferentiation) {
-            let df = {slope1: "-4.32", slope2: "-4.32", slope3: "-4.32", slope4: "-4.32", constant: "1500"}
-            if(advertisementImplement) df = {...df, adver1: "1.1", adver2: "1.1", adver3: "1.1", adver4: "1.1"}
-            d.on.company_1 = company_1 ? {...d.on.company_1, ...df, ...company_1} : { ...d.on.company_1, ...df }
-            d.on.company_2 = company_2 ? {...d.on.company_2, ...df, ...company_2} : { ...d.on.company_2, ...df }
-            d.on.company_3 = company_3 ? {...d.on.company_3, ...df, ...company_3} : { ...d.on.company_3, ...df }
-            d.on.company_4 = company_4 ? {...d.on.company_4, ...df, ...company_4} : { ...d.on.company_4, ...df }
+        if(productionDifferentiation) {
+          let df = {slope1: "-4.32", slope2: "-4.32", slope3: "-4.32", slope4: "-4.32", constant: "1500"}
+          if(advertisementImplement) df = {...df, adver1: "1.1", adver2: "1.1", adver3: "1.1", adver4: "1.1"}
+          d.on.company_1 = company_1 ? {...d.on.company_1, ...df, ...company_1} : { ...d.on.company_1, ...df }
+          d.on.company_2 = company_2 ? {...d.on.company_2, ...df, ...company_2} : { ...d.on.company_2, ...df }
+          d.on.company_3 = company_3 ? {...d.on.company_3, ...df, ...company_3} : { ...d.on.company_3, ...df }
+          d.on.company_4 = company_4 ? {...d.on.company_4, ...df, ...company_4} : { ...d.on.company_4, ...df }
+        }
+
+        if(increaseInCapacity) {
+          let df = {
+            cf1_slope1: "-4.32",
+            cf1_slope2: "-4.32",
+            cf1_slope3: "-4.32",
+            cf1_constant: "1500",
+            cf2_slope1: "-3.32",
+            cf2_slope2: "-3.32",
+            cf2_slope3: "-3.32",
+            cf2_constant: "750",
+            cf3_slope1: "-2.32",
+            cf3_slope2: "-2.32",
+            cf3_slope3: "-2.32",
+            cf3_constant: "375",
           }
+          d.on.roomInfo.investmentCostA = 1000
+          d.on.roomInfo.investmentCostB = 5000
+          d.on.company_1 = company_1 ? {...d.on.company_1, ...df, ...company_1} : { ...d.on.company_1, ...df }
+          d.on.company_2 = company_2 ? {...d.on.company_2, ...df, ...company_2} : { ...d.on.company_2, ...df }
+          d.on.company_3 = company_3 ? {...d.on.company_3, ...df, ...company_3} : { ...d.on.company_3, ...df }
+          d.on.company_4 = company_4 ? {...d.on.company_4, ...df, ...company_4} : { ...d.on.company_4, ...df }
+        }
 
-          that.database.database().ref(transferData.roomNum).set(d);
-          that.socket.emit('GAME_SETTING',  transferData);
-          that.database.database().ref(transferData.roomNum).child('on').child('console').push().set(
-            {time:  new Date().toLocaleString('en-GB', {timeZone:'Asia/Hong_Kong'}), message: 'Successfully created Room.'+transferData.roomNum},
-            function(err){
-              if(err){
-                console.log(err);
-              }
+        that.database.database().ref(transferData.roomNum).set(d);
+        that.socket.emit('GAME_SETTING',  transferData);
+        that.database.database().ref(transferData.roomNum).child('on').child('console').push().set(
+          {time:  new Date().toLocaleString('en-GB', {timeZone:'Asia/Hong_Kong'}), message: 'Successfully created Room.'+transferData.roomNum},
+          function(err){
+            if(err){
+              console.log(err);
             }
-          ).then(function(){
-            that.database.database().ref(transferData.roomNum).child('on').child('round').set({
-              currentRound: 1,
-              roundStarted: false,
-              previousRoundData: null,
-              endroundbutton: true,
-            }).then(function(){
-              that.setState({
-                gameStart: true
-              })
-            }
-            )
-          })   
-            
-        })
+          }
+        ).then(function(){
+          that.database.database().ref(transferData.roomNum).child('on').child('round').set({
+            currentRound: 1,
+            roundStarted: false,
+            previousRoundData: null,
+            endroundbutton: true,
+          }).then(function(){
+            that.setState({
+              gameStart: true
+            })
+          }
+          )
+        })   
+      })
     };
     renderTable(less){
       let classes = this.classes;
