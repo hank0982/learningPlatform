@@ -21,7 +21,7 @@ import Table, { TableBody, TableCell, TableRow } from 'material-ui/Table';
 // other libraries
 import { Redirect } from 'react-router';
 
-// other components
+
 import ApplicationBar from '../AppBar';
 import CostFunction from './cost_function';
 
@@ -113,6 +113,7 @@ class GameSetting extends React.Component {
         [event.target.name]: event.target.value,
       });
     };
+    
     this.handleSwitchOnChange = name => (_event, checked) => {
       let { marketType } = this.state;
 
@@ -650,7 +651,7 @@ class GameSetting extends React.Component {
             less,
           ),
         );
-
+        
         if (advertisementImplement === true) {
           advs.push(
             this.renderTableRowFive(
@@ -948,7 +949,6 @@ class GameSetting extends React.Component {
           string = `${string} ${i === 1 ? '+' : '-'} Slop${i}*Advertising${i}`;
         }
       }
-
       return string;
     } else {
       return ` Price = ${demandConstant} + ${demandSlope} Quntity`;
