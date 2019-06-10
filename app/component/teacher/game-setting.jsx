@@ -405,8 +405,7 @@ class GameSetting extends React.Component {
       firmNum: this.state.firmNum,
       marketType: this.state.marketType,
       roundNum: this.state.roundNum,
-      constant: this.state.constant, //
-      demandConstant: this.state.demandConstant, //
+      constant: this.state.demandConstant, 
       slope: this.state.demandSlope, //
       increaseInCapacity: this.state.increaseInCapacity,
       advertisementImplement: advertisementImplement,
